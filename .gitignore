@@ -1,0 +1,72 @@
+# Игнорировать виртуальное окружение
+venv/
+env/
+.venv/
+
+# Игнорировать Python кэш
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Игнорировать среды разработки
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Игнорировать переменные окружения
+.env
+.env.local
+.env.*.local
+
+# Игнорировать базу данных
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Игнорировать логи
+*.log
+logs/
+
+# Игнорировать модели ML
+ml/models/*.pkl
+ml/models/*.joblib
+ml/models/*.h5
+
+# Игнорировать данные
+data/*.csv
+data/*.json
+data/raw/
+data/processed/
+
+# Игнорировать временные файлы
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Игнорировать загрузки
+uploads/
+downloads/
+
+# Игнорировать миграции (опционально)
+migrations/versions/*.py
+
+# Игнорировать покрытие тестами
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Игнорировать зависимости Node (если будет фронтенд)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Игнорировать собранные файлы
+dist/
+build/
+*.egg-info/

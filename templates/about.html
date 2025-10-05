@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}About - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>⚽ About GoalPredictor.AI</h1>
+        <p>AI-powered football predictions with machine learning</p>
+    </div>
+
+    <div class="about-content">
+        <section class="section">
+            <h2>🎯 Our Mission</h2>
+            <p>
+                GoalPredictor.AI uses advanced machine learning algorithms to analyze football match statistics 
+                and provide accurate predictions for Over 2.5 Goals, Both Teams to Score (BTTS), and match outcomes.
+            </p>
+            <p>
+                We believe in transparency and education. Our AI not only provides predictions but also explains 
+                the reasoning behind them, helping users understand the factors that influence match outcomes.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>🧠 How It Works</h2>
+            <div class="how-it-works">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Data Collection</h3>
+                    <p>We gather real-time data from Football-Data.org API, covering the top 5 European leagues.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Feature Engineering</h3>
+                    <p>Our system extracts 30+ statistical features including form, goals, head-to-head history, and more.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>ML Prediction</h3>
+                    <p>LightGBM and XGBoost models trained on historical data generate probability-based predictions.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>AI Explanation</h3>
+                    <p>GPT-4 analyzes the prediction and provides human-readable explanations of key factors.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>📊 Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h3>🐍 Backend</h3>
+                    <ul>
+                        <li>Flask 3.0</li>
+                        <li>Python 3.10+</li>
+                        <li>SQLAlchemy</li>
+                        <li>PostgreSQL</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-item">
+                    <h3>🧠 Machine Learning</h3>
+                    <ul>
+                        <li>LightGBM</li>
+                        <li>XGBoost</li>
+                        <li>Scikit-learn</li>
+                        <li>Pandas & NumPy</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-item">
+                    <h3>🤖 AI & APIs</h3>
+                    <ul>
+                        <li>OpenAI GPT-4</li>
+                        <li>Football-Data.org</li>
+                        <li>Stripe Payments</li>
+                        <li>APScheduler</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-item">
+                    <h3>🎨 Frontend</h3>
+                    <ul>
+                        <li>HTML5/CSS3</li>
+                        <li>JavaScript (Vanilla)</li>
+                        <li>Responsive Design</li>
+                        <li>Modern UI/UX</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🏆 Covered Leagues</h2>
+            <div class="leagues-grid">
+                <div class="league-card">
+                    <h3>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</h3>
+                    <p>England's top football division</p>
+                </div>
+                <div class="league-card">
+                    <h3>🇪🇸 La Liga</h3>
+                    <p>Spanish Primera División</p>
+                </div>
+                <div class="league-card">
+                    <h3>🇩🇪 Bundesliga</h3>
+                    <p>German top football league</p>
+                </div>
+                <div class="league-card">
+                    <h3>🇮🇹 Serie A</h3>
+                    <p>Italy's premier football league</p>
+                </div>
+                <div class="league-card">
+                    <h3>🇫🇷 Ligue 1</h3>
+                    <p>French top football division</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>📈 Performance Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">70%+</div>
+                    <div class="metric-label">Prediction Accuracy</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">30+</div>
+                    <div class="metric-label">Statistical Features</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">5</div>
+                    <div class="metric-label">Top European Leagues</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">24/7</div>
+                    <div class="metric-label">Automated Updates</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section cta-section">
+            <h2>Ready to Start?</h2>
+            <p>Join thousands of users who trust GoalPredictor.AI for accurate football predictions.</p>
+            <div class="cta-buttons">
+                <a href="/register" class="btn btn-primary">Get Started Free</a>
+                <a href="/pricing" class="btn btn-secondary">View Pricing</a>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+.about-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.section {
+    background: white;
+    padding: 48px;
+    margin-bottom: 32px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.section h2 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 32px;
+    color: #333;
+}
+
+.how-it-works {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.step {
+    text-align: center;
+    padding: 24px;
+    background: #f5f5f5;
+    border-radius: 12px;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 auto 16px;
+}
+
+.step h3 {
+    margin: 16px 0 8px;
+    color: #333;
+}
+
+.step p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.tech-item {
+    background: #f9f9f9;
+    padding: 24px;
+    border-radius: 12px;
+    border-left: 4px solid #1976d2;
+}
+
+.tech-item h3 {
+    margin-top: 0;
+    color: #1976d2;
+}
+
+.tech-item ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tech-item li {
+    padding: 8px 0;
+    color: #666;
+}
+
+.leagues-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.league-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.league-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+}
+
+.league-card p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.metric-card {
+    text-align: center;
+    padding: 32px;
+    background: #f5f5f5;
+    border-radius: 12px;
+}
+
+.metric-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #1976d2;
+    margin-bottom: 8px;
+}
+
+.metric-label {
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cta-section {
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.cta-section h2 {
+    color: white;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 32px;
+}
+
+.btn {
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: white;
+    color: #764ba2;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: #764ba2;
+}
+</style>
+{% endblock %}

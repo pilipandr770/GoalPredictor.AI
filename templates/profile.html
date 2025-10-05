@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>👤 Your Profile</h1>
+        <p>Manage your account and subscription</p>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-section">
+            <h2>Account Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Email</label>
+                    <p id="user-email">Loading...</p>
+                </div>
+                <div class="info-item">
+                    <label>Member Since</label>
+                    <p id="member-since">Loading...</p>
+                </div>
+                <div class="info-item">
+                    <label>Current Plan</label>
+                    <p id="current-plan">Loading...</p>
+                </div>
+                <div class="info-item">
+                    <label>Predictions Today</label>
+                    <p id="predictions-count">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2>Subscription</h2>
+            <div class="subscription-card">
+                <div class="subscription-info">
+                    <h3 id="plan-name">Free Plan</h3>
+                    <p id="plan-description">5 predictions per day</p>
+                </div>
+                <div class="subscription-actions">
+                    <button class="btn btn-primary" onclick="window.location.href='/pricing'">
+                        Upgrade to Premium
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2>Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">⚽</div>
+                    <div class="stat-value" id="total-predictions">0</div>
+                    <div class="stat-label">Total Predictions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="correct-predictions">0</div>
+                    <div class="stat-label">Correct Predictions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">Current Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2>Settings</h2>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label>Email Notifications</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="email-notifications" checked>
+                        <label for="email-notifications"></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Push Notifications</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="push-notifications">
+                        <label for="push-notifications"></label>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="saveSettings()">
+                    Save Settings
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-section danger-zone">
+            <h2>Danger Zone</h2>
+            <button class="btn btn-danger" onclick="confirmDelete()">
+                Delete Account
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load user profile (placeholder - implement with real API)
+document.addEventListener('DOMContentLoaded', function() {
+    // Placeholder data - replace with API call
+    document.getElementById('user-email').textContent = 'user@example.com';
+    document.getElementById('member-since').textContent = 'January 2025';
+    document.getElementById('current-plan').textContent = 'Free';
+    document.getElementById('predictions-count').textContent = '0 / 5';
+    
+    document.getElementById('total-predictions').textContent = '0';
+    document.getElementById('correct-predictions').textContent = '0';
+    document.getElementById('accuracy').textContent = '0%';
+    document.getElementById('streak').textContent = '0';
+});
+
+function saveSettings() {
+    alert('Settings saved! (Demo - implement with real API)');
+}
+
+function confirmDelete() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        alert('Account deletion requested (Demo - implement with real API)');
+    }
+}
+</script>
+
+<style>
+.profile-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.profile-section {
+    background: white;
+    padding: 32px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile-section h2 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: #333;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.info-item label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-item p {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.subscription-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    color: white;
+}
+
+.subscription-info h3 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+}
+
+.subscription-info p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 24px;
+    background: #f5f5f5;
+    border-radius: 12px;
+}
+
+.stat-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1976d2;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.settings-form {
+    max-width: 500px;
+}
+
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.toggle-switch label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.toggle-switch label::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.3s;
+}
+
+.toggle-switch input:checked + label {
+    background: #1976d2;
+}
+
+.toggle-switch input:checked + label::after {
+    left: 33px;
+}
+
+.btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: white;
+    color: #764ba2;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    background: #1976d2;
+    color: white;
+    margin-top: 16px;
+}
+
+.btn-secondary:hover {
+    background: #1565c0;
+}
+
+.danger-zone {
+    border: 2px solid #f44336;
+}
+
+.btn-danger {
+    background: #f44336;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #d32f2f;
+}
+</style>
+{% endblock %}
