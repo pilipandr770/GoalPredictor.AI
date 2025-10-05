@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>💳 Pricing Plans</h1>
+        <p>Choose the plan that fits your needs</p>
+    </div>
+
+    <div class="pricing-grid">
+        <!-- Free Plan -->
+        <div class="pricing-card">
+            <div class="plan-header">
+                <h2>Free</h2>
+                <div class="price">
+                    <span class="amount">$0</span>
+                    <span class="period">/month</span>
+                </div>
+            </div>
+            
+            <ul class="features">
+                <li>✅ 5 predictions per day</li>
+                <li>✅ Basic match statistics</li>
+                <li>✅ Over 2.5 Goals predictions</li>
+                <li>❌ AI explanations</li>
+                <li>❌ Email notifications</li>
+                <li>❌ Historical data access</li>
+            </ul>
+            
+            <button class="btn-plan" onclick="selectPlan('free')">Get Started</button>
+        </div>
+
+        <!-- Premium Plan -->
+        <div class="pricing-card featured">
+            <div class="badge">Most Popular</div>
+            <div class="plan-header">
+                <h2>Premium</h2>
+                <div class="price">
+                    <span class="amount">$9.99</span>
+                    <span class="period">/month</span>
+                </div>
+            </div>
+            
+            <ul class="features">
+                <li>✅ Unlimited predictions</li>
+                <li>✅ Advanced statistics</li>
+                <li>✅ All prediction types</li>
+                <li>✅ AI-powered explanations</li>
+                <li>✅ Email notifications</li>
+                <li>✅ Historical data (2+ years)</li>
+                <li>✅ Priority support</li>
+            </ul>
+            
+            <button class="btn-plan primary" onclick="selectPlan('premium')">Upgrade Now</button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="pricing-card">
+            <div class="plan-header">
+                <h2>Pro</h2>
+                <div class="price">
+                    <span class="amount">$29.99</span>
+                    <span class="period">/month</span>
+                </div>
+            </div>
+            
+            <ul class="features">
+                <li>✅ Everything in Premium</li>
+                <li>✅ API access</li>
+                <li>✅ Custom integrations</li>
+                <li>✅ Bulk predictions</li>
+                <li>✅ Advanced analytics</li>
+                <li>✅ White-label options</li>
+                <li>✅ Dedicated support</li>
+            </ul>
+            
+            <button class="btn-plan" onclick="selectPlan('pro')">Contact Sales</button>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        
+        <div class="faq-item">
+            <h3>How accurate are the predictions?</h3>
+            <p>Our ML models achieve 70%+ accuracy on Over 2.5 Goals predictions, trained on historical data from top European leagues.</p>
+        </div>
+        
+        <div class="faq-item">
+            <h3>Can I cancel anytime?</h3>
+            <p>Yes! You can cancel your subscription at any time. No questions asked.</p>
+        </div>
+        
+        <div class="faq-item">
+            <h3>Which leagues are covered?</h3>
+            <p>We cover the top 5 European leagues: Premier League, La Liga, Bundesliga, Serie A, and Ligue 1.</p>
+        </div>
+        
+        <div class="faq-item">
+            <h3>How do I get started?</h3>
+            <p>Simply register for a free account and start exploring predictions. Upgrade to Premium anytime for unlimited access.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectPlan(plan) {
+    if (plan === 'free') {
+        window.location.href = '/register';
+    } else {
+        alert(`Redirecting to ${plan} plan subscription...`);
+        // In production, redirect to Stripe checkout
+        // window.location.href = '/api/subscriptions/checkout?plan=' + plan;
+    }
+}
+</script>
+
+<style>
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin: 48px 0;
+}
+
+.pricing-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    position: relative;
+    transition: transform 0.3s;
+}
+
+.pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.pricing-card.featured {
+    border: 3px solid #1976d2;
+    transform: scale(1.05);
+}
+
+.pricing-card.featured:hover {
+    transform: scale(1.08);
+}
+
+.badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid #eee;
+}
+
+.plan-header h2 {
+    margin: 0 0 16px 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+}
+
+.amount {
+    font-size: 48px;
+    font-weight: bold;
+    color: #1976d2;
+}
+
+.period {
+    font-size: 16px;
+    color: #666;
+}
+
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 32px 0;
+}
+
+.features li {
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 16px;
+}
+
+.btn-plan {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #1976d2;
+    background: white;
+    color: #1976d2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-plan:hover {
+    background: #1976d2;
+    color: white;
+}
+
+.btn-plan.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.btn-plan.primary:hover {
+    transform: scale(1.05);
+}
+
+.faq-section {
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 2px solid #eee;
+}
+
+.faq-section h2 {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 32px;
+}
+
+.faq-item {
+    background: white;
+    padding: 24px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.faq-item h3 {
+    margin-top: 0;
+    color: #1976d2;
+}
+
+.faq-item p {
+    margin-bottom: 0;
+    color: #666;
+    line-height: 1.6;
+}
+</style>
+{% endblock %}
