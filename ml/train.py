@@ -18,25 +18,52 @@ def load_kaggle_dataset(filepath):
     """
     Загрузить и обработать датасет с Kaggle
     
-    Ожидаемые колонки:
+    Реальные колонки из Kaggle:
+    - date_utc, home_team, away_team, fulltime_home, fulltime_away, competition_name
+    
+    Преобразуем в стандартный формат:
     - Date, HomeTeam, AwayTeam, FTHG, FTAG, League
     """
     print(f"📁 Загружаю датасет: {filepath}")
     
     df = pd.read_csv(filepath)
     
+    # Маппинг колонок из формата Kaggle в стандартный формат
+    column_mapping = {
+        'date_utc': 'Date',
+        'home_team': 'HomeTeam',
+        'away_team': 'AwayTeam',
+        'fulltime_home': 'FTHG',
+        'fulltime_away': 'FTAG',
+        'competition_name': 'League'
+    }
+    
+    # Переименовать колонки
+    df = df.rename(columns=column_mapping)
+    
     # Конвертировать дату
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     
-    # Вычислить общее количество голов
-    if 'FTHG' in df.columns and 'FTAG' in df.columns:
-        df['TotalGoals'] = df['FTHG'] + df['FTAG']
-        df['Over2_5'] = (df['TotalGoals'] > 2.5).astype(int)
-        df['BTTS'] = ((df['FTHG'] > 0) & (df['FTAG'] > 0)).astype(int)
+    # Фильтр только завершенных матчей
+    if 'status' in df.columns:
+        df = df[df['status'] == 'FINISHED']
     
-    print(f"✅ Загружено {len(df)} матчей")
+    # Убрать строки с пустыми значениями голов
+    df = df.dropna(subset=['FTHG', 'FTAG'])
+    
+    # Убедиться что голы - числа
+    df['FTHG'] = pd.to_numeric(df['FTHG'], errors='coerce')
+    df['FTAG'] = pd.to_numeric(df['FTAG'], errors='coerce')
+    
+    # Вычислить общее количество голов
+    df['TotalGoals'] = df['FTHG'] + df['FTAG']
+    df['Over2_5'] = (df['TotalGoals'] > 2.5).astype(int)
+    df['BTTS'] = ((df['FTHG'] > 0) & (df['FTAG'] > 0)).astype(int)
+    
+    print(f"✅ Загружено {len(df)} завершенных матчей")
     print(f"   Период: {df['Date'].min()} - {df['Date'].max()}")
     print(f"   Over 2.5: {df['Over2_5'].mean():.1%}")
+    print(f"   BTTS: {df['BTTS'].mean():.1%}")
     
     return df
 
@@ -90,6 +117,8 @@ def calculate_team_statistics(df, team_name, is_home=None, last_n_matches=10):
         'total_goals_avg': recent_matches['TotalGoals'].mean(),
         'over_2_5_percentage': recent_matches['Over2_5'].mean(),
         'btts_percentage': recent_matches['BTTS'].mean(),
+        'home_avg_goals_scored': recent_matches[goals_scored_col].mean(),  # для совместимости
+        'away_avg_goals_scored': recent_matches[goals_scored_col].mean(),  # для совместимости
     }
     
     # Форма команды (последние 5 матчей)
@@ -200,16 +229,25 @@ def train_model_from_kaggle(dataset_path):
     # Загрузить датасет
     df = load_kaggle_dataset(dataset_path)
     
-    # Фильтр топ-5 лиг
-    top_leagues = ['Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1']
+    # Фильтр топ-5 лиг (названия лиг из Kaggle)
+    top_leagues = [
+        'Premier League',       # Англия
+        'LaLiga EA Sports',     # Испания
+        'Bundesliga',           # Германия
+        'Serie A',              # Италия
+        'Ligue 1'               # Франция
+    ]
     if 'League' in df.columns:
         df = df[df['League'].isin(top_leagues)]
         print(f"\n📊 Фильтр топ-5 лиг: {len(df)} матчей")
+        print(f"   Лиги: {df['League'].unique()}")
     
-    # Фильтр последних 5 лет
-    cutoff_date = datetime.now() - timedelta(days=365*5)
+    # Фильтр последних 2 сезонов (датасет и так из 2024-2025)
+    # Убрать timezone из дат для сравнения
+    df['Date'] = df['Date'].dt.tz_localize(None)
+    cutoff_date = datetime.now() - timedelta(days=365*2)
     df = df[df['Date'] >= cutoff_date]
-    print(f"📅 Последние 5 лет: {len(df)} матчей")
+    print(f"📅 Последние 2 сезона: {len(df)} матчей")
     
     # Подготовить данные
     training_data = prepare_training_data(df)
@@ -229,15 +267,24 @@ def train_model_from_kaggle(dataset_path):
 
 
 if __name__ == '__main__':
-    # Путь к датасету Kaggle
-    dataset_path = os.path.join('data', 'football_matches.csv')
+    # Путь к датасету Kaggle (используем обработанный датасет)
+    dataset_path = os.path.join('data', 'processed', 'football_matches.csv')
+    
+    # Альтернативный путь (сырой датасет)
+    if not os.path.exists(dataset_path):
+        dataset_path = os.path.join('data', 'raw', 'football_matches_2024_2025.csv')
+    
+    # Еще один альтернативный путь
+    if not os.path.exists(dataset_path):
+        dataset_path = os.path.join('data', 'football_matches.csv')
     
     if not os.path.exists(dataset_path):
-        print(f"❌ Датасет не найден: {dataset_path}")
-        print("\n📥 Скачайте датасет с Kaggle:")
-        print("   https://www.kaggle.com/datasets/secareanualin/football-events")
-        print("\n   Или используйте любой другой датасет с колонками:")
-        print("   Date, HomeTeam, AwayTeam, FTHG, FTAG, League")
+        print(f"❌ Датасет не найден!")
+        print("\n📥 Используйте скрипт для загрузки:")
+        print("   python ml/download_data.py")
+        print("\n   Или скачайте датасет с Kaggle:")
+        print("   https://www.kaggle.com/datasets/tarekmasryo/football-matches-20242025-top-5-leagues")
         sys.exit(1)
     
+    print(f"📂 Используется датасет: {dataset_path}\n")
     train_model_from_kaggle(dataset_path)

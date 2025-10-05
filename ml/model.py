@@ -172,6 +172,12 @@ class GoalPredictorModel:
         """
         print("🎯 Начинаю обучение модели...")
         
+        # Определить названия признаков (все колонки кроме целевых)
+        exclude_cols = ['over_2_5', 'btts', 'date', 'league']
+        self.feature_names = [col for col in training_data.columns if col not in exclude_cols]
+        
+        print(f"   Количество признаков: {len(self.feature_names)}")
+        
         # Подготовка данных
         X = training_data[self.feature_names]
         y = training_data[target_column]
@@ -243,21 +249,37 @@ class GoalPredictorModel:
         # Создать признаки
         features = self.create_features(home_stats, away_stats, match_info)
         
+        return self.predict_from_features(features)
+    
+    def predict_from_features(self, features):
+        """
+        Сделать прогноз на основе уже созданных признаков
+        
+        Args:
+            features: dict с признаками матча
+        
+        Returns:
+            dict: Прогноз с вероятностями
+        """
+        if self.model is None:
+            raise ValueError("Модель не обучена! Сначала вызовите train() или load_model()")
+        
         # Преобразовать в DataFrame
-        X = pd.DataFrame([features])
+        X = pd.DataFrame([features])[self.feature_names]
         X_scaled = self.scaler.transform(X)
         
-        # Получить вероятность
-        probability = self.model.predict_proba(X_scaled)[0][1]
+        # Получить вероятности для обоих классов
+        probabilities = self.model.predict_proba(X_scaled)[0]
+        over_2_5_prob = probabilities[1]  # Вероятность Over 2.5
         
         # Определить уровень уверенности
-        if probability >= 0.75:
+        if over_2_5_prob >= 0.75:
             confidence = 'high'
             recommendation = 'Сильная рекомендация'
-        elif probability >= 0.65:
+        elif over_2_5_prob >= 0.65:
             confidence = 'medium'
             recommendation = 'Умеренная рекомендация'
-        elif probability >= 0.55:
+        elif over_2_5_prob >= 0.55:
             confidence = 'low'
             recommendation = 'Слабая рекомендация'
         else:
@@ -265,11 +287,11 @@ class GoalPredictorModel:
             recommendation = 'Не рекомендуется'
         
         return {
-            'probability': probability,
+            'over_2_5': over_2_5_prob,
+            'under_2_5': probabilities[0],
             'confidence': confidence,
             'recommendation': recommendation,
-            'prediction': 'Over 2.5' if probability >= 0.55 else 'Under 2.5',
-            'features': features,
+            'prediction': 'Over 2.5' if over_2_5_prob >= 0.5 else 'Under 2.5',
             'model_version': self.model_version
         }
     
@@ -301,7 +323,11 @@ class GoalPredictorModel:
                 raise FileNotFoundError("Модели не найдены!")
             filename = sorted(model_files)[-1]
         
-        filepath = os.path.join(self.model_path, filename)
+        # Если filename уже содержит полный путь, использовать его
+        if os.path.dirname(filename):
+            filepath = filename
+        else:
+            filepath = os.path.join(self.model_path, filename)
         
         model_data = joblib.load(filepath)
         self.model = model_data['model']
