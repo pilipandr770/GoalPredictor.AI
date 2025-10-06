@@ -8,8 +8,6 @@ services:
     buildCommand: "pip install --upgrade pip && pip install --no-cache-dir --force-reinstall -r requirements.txt && python migrate_to_postgres.py"
     startCommand: "gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 app:app"
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.11"
       - key: FLASK_ENV
         value: production
       - key: DATABASE_URL
