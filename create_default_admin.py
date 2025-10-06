@@ -15,20 +15,20 @@ from models import User
 
 def create_default_admin():
     """Создать администратора по умолчанию"""
-    app = create_app()
+    print("=" * 60)
+    print("🔐 Создание администратора по умолчанию")
+    print("=" * 60)
+    print()
     
-    with app.app_context():
-        print("=" * 60)
-        print("🔐 Создание администратора по умолчанию")
-        print("=" * 60)
-        print()
+    # Данные администратора по умолчанию
+    admin_email = 'admin@goalpredictor.ai'
+    admin_username = 'admin'
+    admin_password = 'Admin123!'  # ВАЖНО: Сменить после первого входа!
+    
+    try:
+        app = create_app()
         
-        # Данные администратора по умолчанию
-        admin_email = 'admin@goalpredictor.ai'
-        admin_username = 'admin'
-        admin_password = 'Admin123!'  # ВАЖНО: Сменить после первого входа!
-        
-        try:
+        with app.app_context():
             # Проверить, существует ли уже админ
             existing_admin = User.query.filter_by(email=admin_email).first()
             
@@ -44,6 +44,7 @@ def create_default_admin():
                 username=admin_username,
                 email=admin_email,
                 is_admin=True,
+                is_premium=True,
                 is_active=True
             )
             admin.set_password(admin_password)
@@ -60,14 +61,14 @@ def create_default_admin():
             print()
             print("⚠️  ВАЖНО: Смените пароль после первого входа!")
             print()
-            
-        except Exception as e:
-            db.session.rollback()
-            print(f"❌ Ошибка создания администратора: {e}")
-            import traceback
-            traceback.print_exc()
         
-        print("=" * 60)
+    except Exception as e:
+        print(f"❌ Ошибка создания администратора: {e}")
+        print("ℹ️  Администратор будет создан при следующем деплое")
+        import traceback
+        traceback.print_exc()
+    
+    print("=" * 60)
 
 
 if __name__ == '__main__':
