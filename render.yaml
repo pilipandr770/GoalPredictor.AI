@@ -1,0 +1,37 @@
+services:
+  # Web Service (Flask + Gunicorn)
+  - type: web
+    name: goalpredictor-ai
+    runtime: python
+    region: frankfurt  # EU region for Germany
+    plan: free  # Start with free tier
+    buildCommand: "pip install -r requirements.txt && python migrate_to_postgres.py"
+    startCommand: "gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: FLASK_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a/ittoken_db
+      - key: DATABASE_SCHEMA
+        value: goalpredictor
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FOOTBALL_DATA_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: DEBUG
+        value: "False"
+      - key: SESSION_COOKIE_SECURE
+        value: "True"
+      - key: SESSION_COOKIE_HTTPONLY
+        value: "True"
+    healthCheckPath: /
+    autoDeploy: true
+
+databases: []  # Using existing PostgreSQL database
+
+# Background Jobs (optional - для планировщика задач)
+# Можно добавить позже как отдельный worker service

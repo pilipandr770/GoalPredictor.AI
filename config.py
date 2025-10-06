@@ -16,9 +16,31 @@ class Config:
     DEBUG = os.getenv('DEBUG', 'False') == 'True'
     
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///goalpredictor.db')
+    DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///goalpredictor.db')
+    # Fix postgres:// to postgresql:// for SQLAlchemy
+    if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
+    
+    # PostgreSQL Schema (for multi-tenant setup on Render)
+    DATABASE_SCHEMA = os.getenv('DATABASE_SCHEMA', 'public')
+    
+    # Database connection pool settings for PostgreSQL
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_size': 10,
+        'max_overflow': 20,
+        'pool_recycle': 3600,
+    }
+    
+    # Add schema to search_path for PostgreSQL
+    if 'postgresql' in DATABASE_URL:
+        SQLALCHEMY_ENGINE_OPTIONS['connect_args'] = {
+            'options': f'-csearch_path={DATABASE_SCHEMA},public'
+        }
     
     # API Keys - Football API
     FOOTBALL_API_PROVIDER = os.getenv('FOOTBALL_API_PROVIDER', 'football-data-org')
@@ -97,6 +119,30 @@ class ProductionConfig(Config):
     TESTING = False
     # В продакшене обязательно использовать PostgreSQL
     SQLALCHEMY_ECHO = False
+    
+    # Security settings for production
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # Ensure PostgreSQL is used
+    if not Config.DATABASE_URL or 'postgresql' not in Config.DATABASE_URL:
+        import warnings
+        warnings.warn("Production should use PostgreSQL database!")
+    
+    # Stricter database pool settings
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_size': 5,
+        'max_overflow': 10,
+        'pool_recycle': 3600,
+        'pool_timeout': 30,
+    }
+    
+    if Config.DATABASE_SCHEMA:
+        SQLALCHEMY_ENGINE_OPTIONS['connect_args'] = {
+            'options': f'-csearch_path={Config.DATABASE_SCHEMA},public'
+        }
 
 
 class TestingConfig(Config):

@@ -21,6 +21,8 @@ __pycache__/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
 
 # Игнорировать базу данных
 *.db
@@ -32,10 +34,10 @@ instance/
 *.log
 logs/
 
-# Игнорировать модели ML
-ml/models/*.pkl
-ml/models/*.joblib
-ml/models/*.h5
+# Игнорировать модели ML (НЕ ИГНОРИРУЕМ для деплоя!)
+# ml/models/*.pkl  # НУЖНЫ для production!
+# ml/models/*.joblib
+# ml/models/*.h5
 
 # Игнорировать данные
 data/*.csv
