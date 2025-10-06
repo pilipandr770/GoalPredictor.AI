@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 from models import User
-from app import db
+from extensions import db
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -64,7 +64,8 @@ def register():
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
-                'is_premium': user.is_premium
+                'is_premium': user.is_premium,
+                'is_admin': user.is_admin
             }
         }), 201
         
@@ -116,11 +117,18 @@ def login():
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
-                'is_premium': user.is_premium
+                'is_premium': user.is_premium,
+                'is_admin': user.is_admin
             }
         })
         
     except Exception as e:
+        import traceback
+        print("=" * 50)
+        print("ОШИБКА ВХОДА:")
+        print(str(e))
+        print(traceback.format_exc())
+        print("=" * 50)
         return jsonify({
             'success': False,
             'error': str(e)

@@ -4,7 +4,7 @@
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from extensions import db
 
 
 class User(UserMixin, db.Model):
@@ -15,6 +15,9 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
+    
+    # Роль пользователя
+    is_admin = db.Column(db.Boolean, default=False)
     
     # Подписка
     is_premium = db.Column(db.Boolean, default=False)
@@ -116,7 +119,14 @@ class Match(db.Model):
     # Результаты (заполняются после матча)
     home_score = db.Column(db.Integer, nullable=True)
     away_score = db.Column(db.Integer, nullable=True)
+    home_goals = db.Column(db.Integer, nullable=True)  # Alias для home_score
+    away_goals = db.Column(db.Integer, nullable=True)  # Alias для away_score
     total_goals = db.Column(db.Integer, nullable=True)
+    
+    # Дополнительные результаты для анализа
+    result = db.Column(db.String(1), nullable=True)  # '1' (home win), 'X' (draw), '2' (away win)
+    over_2_5 = db.Column(db.Boolean, nullable=True)  # Тотал больше 2.5
+    btts = db.Column(db.Boolean, nullable=True)  # Обе команды забили (Both Teams To Score)
     
     # Метаданные
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

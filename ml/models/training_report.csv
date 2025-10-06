@@ -1,0 +1,11 @@
+Target,Model,Train,Test,CV,Std
+over_2_5,RandomForest,100.0%,100.0%,100.0%,0.0%
+over_2_5,GradientBoosting,100.0%,100.0%,100.0%,0.0%
+btts,RandomForest,87.2%,77.9%,77.1%,0.4%
+btts,GradientBoosting,98.4%,76.6%,75.7%,0.9%
+home_win,RandomForest,85.1%,68.1%,67.3%,2.1%
+home_win,GradientBoosting,96.9%,65.7%,65.2%,2.8%
+draw,RandomForest,85.7%,84.5%,80.7%,1.0%
+draw,GradientBoosting,99.5%,82.4%,80.8%,1.4%
+away_win,RandomForest,82.5%,67.5%,70.6%,0.8%
+away_win,GradientBoosting,96.7%,67.7%,70.1%,0.8%

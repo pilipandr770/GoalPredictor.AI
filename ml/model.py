@@ -316,26 +316,56 @@ class GoalPredictorModel:
     
     def load_model(self, filename=None):
         """Загрузить модель с диска"""
-        if filename is None:
-            # Загрузить последнюю модель
-            model_files = [f for f in os.listdir(self.model_path) if f.endswith('.pkl')]
-            if not model_files:
-                raise FileNotFoundError("Модели не найдены!")
-            filename = sorted(model_files)[-1]
+        try:
+            # Попробовать загрузить новую модель (v2.0)
+            over_2_5_path = os.path.join(self.model_path, 'over_2_5_model.pkl')
+            features_path = os.path.join(self.model_path, 'feature_columns.pkl')
+            
+            if os.path.exists(over_2_5_path) and os.path.exists(features_path):
+                # Новая версия модели (из ml/train.py)
+                self.model = joblib.load(over_2_5_path)
+                self.feature_names = joblib.load(features_path)
+                self.model_version = 'v2.0'
+                
+                print(f"📂 Модель загружена: {over_2_5_path}")
+                print(f"   Версия: {self.model_version}")
+                return True
+                
+        except Exception as e:
+            print(f"   Попытка загрузить новую модель не удалась: {e}")
         
-        # Если filename уже содержит полный путь, использовать его
-        if os.path.dirname(filename):
-            filepath = filename
-        else:
-            filepath = os.path.join(self.model_path, filename)
-        
-        model_data = joblib.load(filepath)
-        self.model = model_data['model']
-        self.scaler = model_data['scaler']
-        self.feature_names = model_data['feature_names']
-        self.model_version = model_data['model_version']
-        
-        print(f"📂 Модель загружена: {filepath}")
-        print(f"   Версия: {self.model_version}")
-        
-        return True
+        # Попробовать старый формат
+        try:
+            if filename is None:
+                # Загрузить последнюю модель
+                model_files = [f for f in os.listdir(self.model_path) 
+                              if f.endswith('.pkl') and 'goal_predictor' in f]
+                if not model_files:
+                    raise FileNotFoundError("Модели не найдены!")
+                filename = sorted(model_files)[-1]
+            
+            # Если filename уже содержит полный путь, использовать его
+            if os.path.dirname(filename):
+                filepath = filename
+            else:
+                filepath = os.path.join(self.model_path, filename)
+            
+            model_data = joblib.load(filepath)
+            
+            # Проверить что это словарь со старым форматом
+            if isinstance(model_data, dict):
+                self.model = model_data['model']
+                self.scaler = model_data['scaler']
+                self.feature_names = model_data['feature_names']
+                self.model_version = model_data['model_version']
+            else:
+                # Это просто модель
+                self.model = model_data
+            
+            print(f"📂 Модель загружена: {filepath}")
+            print(f"   Версия: {self.model_version}")
+            
+            return True
+        except Exception as e:
+            print(f"   Ошибка загрузки старой модели: {e}")
+            raise

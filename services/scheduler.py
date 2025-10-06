@@ -13,7 +13,7 @@ from models import Match, Team, Prediction, User
 from services.football_api import FootballAPIService
 from ml.predict import PredictionService
 from services.openai_service import OpenAIService
-from app import db
+from extensions import db
 
 
 class TaskScheduler:

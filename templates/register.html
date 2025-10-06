@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 4rem auto;
+        padding: 2rem;
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .auth-header p {
+        color: #666;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        color: #666;
+    }
+    
+    .auth-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .password-strength {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .strength-bar {
+        height: 4px;
+        border-radius: 2px;
+        background: #e0e0e0;
+        margin-top: 0.25rem;
+        overflow: hidden;
+    }
+    
+    .strength-bar-fill {
+        height: 100%;
+        transition: width 0.3s, background-color 0.3s;
+    }
+    
+    .strength-weak { background: #dc3545; }
+    .strength-medium { background: #ffc107; }
+    .strength-strong { background: #28a745; }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>🚀 Регистрация</h1>
+            <p>Создайте аккаунт для доступа к AI прогнозам</p>
+        </div>
+        
+        <div id="alert-container"></div>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label class="form-label" for="username">Имя пользователя</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="username" 
+                    name="username" 
+                    required 
+                    minlength="3"
+                    placeholder="Введите имя пользователя">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input 
+                    type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    required
+                    placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Пароль</label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="password" 
+                    name="password" 
+                    required 
+                    minlength="6"
+                    placeholder="Минимум 6 символов">
+                <div class="password-strength">
+                    <div class="strength-bar">
+                        <div class="strength-bar-fill" id="strengthBar"></div>
+                    </div>
+                    <span id="strengthText"></span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="confirmPassword">Подтвердите пароль</label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="confirmPassword" 
+                    name="confirmPassword" 
+                    required
+                    placeholder="Повторите пароль">
+            </div>
+            
+            <button type="submit" class="btn-primary" id="submitBtn">
+                Зарегистрироваться
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            Уже есть аккаунт? <a href="/login">Войти</a>
+        </div>
+    </div>
+</div>
+
+<script>
+const form = document.getElementById('registerForm');
+const password = document.getElementById('password');
+const confirmPassword = document.getElementById('confirmPassword');
+const strengthBar = document.getElementById('strengthBar');
+const strengthText = document.getElementById('strengthText');
+const submitBtn = document.getElementById('submitBtn');
+const alertContainer = document.getElementById('alert-container');
+
+// Проверка силы пароля
+password.addEventListener('input', () => {
+    const value = password.value;
+    let strength = 0;
+    
+    if (value.length >= 6) strength += 25;
+    if (value.length >= 10) strength += 25;
+    if (/[a-z]/.test(value) && /[A-Z]/.test(value)) strength += 25;
+    if (/\d/.test(value)) strength += 15;
+    if (/[^a-zA-Z0-9]/.test(value)) strength += 10;
+    
+    strengthBar.style.width = strength + '%';
+    
+    if (strength < 40) {
+        strengthBar.className = 'strength-bar-fill strength-weak';
+        strengthText.textContent = 'Слабый пароль';
+    } else if (strength < 75) {
+        strengthBar.className = 'strength-bar-fill strength-medium';
+        strengthText.textContent = 'Средний пароль';
+    } else {
+        strengthBar.className = 'strength-bar-fill strength-strong';
+        strengthText.textContent = 'Сильный пароль';
+    }
+});
+
+function showAlert(message, type = 'danger') {
+    alertContainer.innerHTML = `
+        <div class="alert alert-${type}">
+            ${message}
+        </div>
+    `;
+    
+    setTimeout(() => {
+        alertContainer.innerHTML = '';
+    }, 5000);
+}
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Проверка совпадения паролей
+    if (password.value !== confirmPassword.value) {
+        showAlert('Пароли не совпадают');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Регистрация...';
+    
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: password.value
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Регистрация успешна! Перенаправление...', 'success');
+            setTimeout(() => {
+                window.location.href = '/predictions';
+            }, 1500);
+        } else {
+            showAlert(data.error || 'Ошибка регистрации');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Зарегистрироваться';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showAlert('Ошибка соединения с сервером');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Зарегистрироваться';
+    }
+});
+</script>
+{% endblock %}

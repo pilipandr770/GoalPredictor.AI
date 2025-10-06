@@ -207,8 +207,39 @@ async function loadTodaysPredictions() {
         if (data.success && data.predictions.length > 0) {
             displayPredictions(data.predictions.slice(0, 3));
         } else {
-            document.getElementById('predictions-container').innerHTML = 
-                '<p class="text-center">Сегодня нет прогнозов</p>';
+            // Показать информацию о ближайших матчах
+            const upcomingMatches = data.upcoming_matches || [];
+            if (upcomingMatches && upcomingMatches.nearest_date) {
+                const nearestDate = new Date(upcomingMatches.nearest_date);
+                const dateStr = nearestDate.toLocaleDateString('ru-RU', { 
+                    day: 'numeric', 
+                    month: 'long',
+                    weekday: 'long'
+                });
+                
+                let matchCount = upcomingMatches.matches ? upcomingMatches.matches.length : 0;
+                let matchText = matchCount === 1 ? 'матч' : matchCount < 5 ? 'матча' : 'матчей';
+                
+                document.getElementById('predictions-container').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 12px;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                        <h4 style="color: #667eea; margin-bottom: 1rem;">Сегодня матчей нет</h4>
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                            <strong>Ближайшие матчи:</strong><br>
+                            ${dateStr}
+                        </p>
+                        <p style="color: #666; font-size: 0.95rem;">
+                            ${matchCount} ${matchText} в расписании
+                        </p>
+                        <a href="/predictions" class="btn btn-primary" style="margin-top: 1rem;">
+                            Посмотреть расписание
+                        </a>
+                    </div>
+                `;
+            } else {
+                document.getElementById('predictions-container').innerHTML = 
+                    '<p class="text-center">Сегодня нет прогнозов</p>';
+            }
         }
     } catch (error) {
         console.error('Ошибка загрузки прогнозов:', error);

@@ -8,7 +8,7 @@ from datetime import datetime
 from models import Match, Prediction, Team, User
 from ml.predict import PredictionService
 from services.football_api import FootballAPIService
-from app import db
+from extensions import db
 
 matches_bp = Blueprint('matches', __name__)
 prediction_service = PredictionService()
@@ -26,6 +26,11 @@ def get_todays_matches():
         # Получить прогнозы
         predictions = prediction_service.predict_todays_matches(league)
         
+        # Если сегодня нет матчей, получить ближайшие (только из БД, без API запросов)
+        upcoming_matches = []
+        if len(predictions) == 0:
+            upcoming_matches = get_upcoming_matches_from_db()
+        
         # Ограничить для бесплатных пользователей
         if current_user.is_authenticated:
             user = current_user
@@ -37,7 +42,8 @@ def get_todays_matches():
         return jsonify({
             'success': True,
             'count': len(predictions),
-            'predictions': predictions
+            'predictions': predictions,
+            'upcoming_matches': upcoming_matches
         })
         
     except Exception as e:
@@ -45,6 +51,66 @@ def get_todays_matches():
             'success': False,
             'error': str(e)
         }), 500
+
+
+def get_upcoming_matches_from_db():
+    """
+    Получить информацию о ближайших матчах ТОЛЬКО из базы данных (без API запросов)
+    """
+    try:
+        from datetime import datetime, timedelta
+        from sqlalchemy import and_
+        
+        today = datetime.now().date()
+        next_week = today + timedelta(days=7)
+        
+        # Получить ближайшие матчи из БД
+        upcoming = Match.query.filter(
+            and_(
+                Match.match_date > datetime.now(),
+                Match.match_date <= datetime.combine(next_week, datetime.max.time())
+            )
+        ).order_by(Match.match_date).limit(10).all()
+        
+        if not upcoming:
+            # Если в БД нет будущих матчей, вернуть заглушку с информацией
+            # что расписание обновится завтра
+            return {
+                'no_data': True,
+                'message': 'Расписание обновляется ежедневно в 07:00'
+            }
+        
+        # Группировать по дате
+        matches_by_date = {}
+        for match in upcoming:
+            date_key = match.match_date.date()
+            if date_key not in matches_by_date:
+                matches_by_date[date_key] = []
+            
+            matches_by_date[date_key].append({
+                'id': match.id,
+                'date': match.match_date.isoformat(),
+                'home_team': match.home_team.name if match.home_team else 'Unknown',
+                'away_team': match.away_team.name if match.away_team else 'Unknown',
+                'league': match.league
+            })
+        
+        # Найти ближайшую дату
+        if matches_by_date:
+            nearest_date = min(matches_by_date.keys())
+            return {
+                'nearest_date': nearest_date.isoformat(),
+                'matches': matches_by_date[nearest_date],
+                'total_upcoming': len(upcoming)
+            }
+        
+        return []
+        
+    except Exception as e:
+        print(f"Ошибка получения ближайших матчей из БД: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
 
 
 @matches_bp.route('/<int:match_id>', methods=['GET'])

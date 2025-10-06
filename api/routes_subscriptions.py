@@ -5,7 +5,8 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 
 from services.stripe_service import StripeService
-from app import db
+from models import User, Subscription
+from extensions import db
 
 subscriptions_bp = Blueprint('subscriptions', __name__)
 stripe_service = StripeService()

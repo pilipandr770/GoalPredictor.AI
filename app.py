@@ -3,17 +3,10 @@ GoalPredictor.AI - Flask Application
 Аналитическая платформа для прогнозирования футбольных матчей
 """
 import os
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import LoginManager
 from config import config
-
-# Инициализация расширений
-db = SQLAlchemy()
-migrate = Migrate()
-login_manager = LoginManager()
+from extensions import db, migrate, login_manager
 
 
 def create_app(config_name=None):
@@ -33,8 +26,14 @@ def create_app(config_name=None):
     CORS(app)
     
     # Настройка Flask-Login
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'login'
     login_manager.login_message = 'Пожалуйста, войдите для доступа к этой странице.'
+    
+    # Загрузка пользователя для Flask-Login
+    @login_manager.user_loader
+    def load_user(user_id):
+        from models import User
+        return User.query.get(int(user_id))
     
     # Импорт моделей базы данных
     with app.app_context():
@@ -46,11 +45,77 @@ def create_app(config_name=None):
     from api.routes_users import users_bp
     from api.routes_subscriptions import subscriptions_bp
     from api.routes_auth import auth_bp
+    from api.routes_admin import admin_bp
     
     app.register_blueprint(matches_bp, url_prefix='/api/matches')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(subscriptions_bp, url_prefix='/api/subscriptions')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    
+    # API эндпоинты для прогнозов
+    @app.route('/api/predictions/upcoming')
+    def get_upcoming_predictions():
+        """Получить прогнозы для предстоящих матчей"""
+        from services.prediction_service import get_prediction_service
+        
+        try:
+            service = get_prediction_service()
+            days = request.args.get('days', 7, type=int)
+            
+            # Получить расписание
+            upcoming_matches = service.get_upcoming_matches(days_ahead=days)
+            
+            # Добавить прогнозы
+            predictions = []
+            for match in upcoming_matches[:20]:  # Ограничение на 20 матчей
+                prediction = service.predict_match(match)
+                predictions.append({
+                    'match': match,
+                    'prediction': prediction
+                })
+            
+            return jsonify({
+                'success': True,
+                'count': len(predictions),
+                'predictions': predictions
+            })
+        
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+    
+    @app.route('/api/predictions/match/<int:match_id>')
+    def get_match_prediction(match_id):
+        """Получить детальный прогноз для конкретного матча"""
+        from services.prediction_service import get_prediction_service
+        
+        try:
+            service = get_prediction_service()
+            
+            # Получить информацию о матче
+            # (В реальности нужно получить из БД или API)
+            match_info = {
+                'id': match_id,
+                'home_team_id': 123,
+                'away_team_id': 456,
+                'date': '2024-10-10 15:00'
+            }
+            
+            prediction = service.predict_match(match_info)
+            
+            return jsonify({
+                'success': True,
+                'prediction': prediction
+            })
+        
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
     
     # Основные маршруты
     @app.route('/')
@@ -79,6 +144,27 @@ def create_app(config_name=None):
         return render_template('profile.html')
     
     # Обработчики ошибок
+    # Веб-маршруты для HTML страниц
+    @app.route('/login')
+    def login_page():
+        """Страница входа"""
+        return render_template('login.html')
+    
+    @app.route('/register')
+    def register_page():
+        """Страница регистрации"""
+        return render_template('register.html')
+    
+    @app.route('/admin')
+    def admin_page():
+        """Админ-панель (требуется аутентификация)"""
+        from flask_login import current_user
+        if not current_user.is_authenticated:
+            return redirect('/login')
+        if not current_user.is_admin:
+            return "Доступ запрещен", 403
+        return render_template('admin/dashboard.html')
+    
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({'error': 'Страница не найдена'}), 404
@@ -99,13 +185,6 @@ def create_app(config_name=None):
         })
     
     return app
-
-
-# Загрузка пользователя для Flask-Login
-@login_manager.user_loader
-def load_user(user_id):
-    from models import User
-    return User.query.get(int(user_id))
 
 
 if __name__ == '__main__':

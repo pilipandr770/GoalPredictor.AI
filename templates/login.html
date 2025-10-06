@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 4rem auto;
+        padding: 2rem;
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .auth-header p {
+        color: #666;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        color: #666;
+    }
+    
+    .auth-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .forgot-password {
+        text-align: right;
+        margin-top: 0.5rem;
+    }
+    
+    .forgot-password a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>👋 Добро пожаловать</h1>
+            <p>Войдите в свой аккаунт GoalPredictor.AI</p>
+        </div>
+        
+        <div id="alert-container"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input 
+                    type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    required
+                    placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Пароль</label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="password" 
+                    name="password" 
+                    required
+                    placeholder="Введите пароль">
+                <div class="forgot-password">
+                    <a href="/forgot-password">Забыли пароль?</a>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Запомнить меня</label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="submitBtn">
+                Войти
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+        </div>
+    </div>
+</div>
+
+<script>
+const form = document.getElementById('loginForm');
+const submitBtn = document.getElementById('submitBtn');
+const alertContainer = document.getElementById('alert-container');
+
+function showAlert(message, type = 'danger') {
+    alertContainer.innerHTML = `
+        <div class="alert alert-${type}">
+            ${message}
+        </div>
+    `;
+    
+    setTimeout(() => {
+        alertContainer.innerHTML = '';
+    }, 5000);
+}
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Вход...';
+    
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                remember: document.getElementById('remember').checked
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert('Вход выполнен! Перенаправление...', 'success');
+            
+            // Проверить, является ли пользователь админом
+            if (data.user && data.user.is_admin) {
+                setTimeout(() => {
+                    window.location.href = '/admin';
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    window.location.href = '/predictions';
+                }, 1500);
+            }
+        } else {
+            showAlert(data.error || 'Неверный email или пароль');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Войти';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showAlert('Ошибка соединения с сервером');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Войти';
+    }
+});
+</script>
+{% endblock %}

@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 
 from models import User, UserPrediction, Prediction
-from app import db
+from extensions import db
 
 users_bp = Blueprint('users', __name__)
 

@@ -1,0 +1,561 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<style>
+    .admin-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .admin-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .admin-header h1 {
+        font-size: 2rem;
+        margin: 0;
+    }
+    
+    .admin-header .user-info {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .stat-icon {
+        font-size: 3rem;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+    
+    .stat-icon.users { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stat-icon.premium { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .stat-icon.revenue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .stat-icon.predictions { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    
+    .stat-content h3 {
+        margin: 0;
+        font-size: 2rem;
+        color: #333;
+    }
+    
+    .stat-content p {
+        margin: 0.25rem 0 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .data-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #e9ecef;
+        color: #333;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .search-box {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-box input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .search-box input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    thead {
+        background: #f8f9fa;
+    }
+    
+    th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .badge-premium {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .badge-free {
+        background: #e9ecef;
+        color: #666;
+    }
+    
+    .badge-admin {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 3rem;
+    }
+    
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+    
+    .pagination button {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .pagination button.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+    
+    .pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h1>🛠️ Админ-панель</h1>
+            <p>Управление пользователями и подписками</p>
+        </div>
+        <div class="user-info">
+            <p>Вход: <strong id="admin-username">Admin</strong></p>
+            <a href="/api/auth/logout" style="color: white;">Выйти</a>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon users">👥</div>
+            <div class="stat-content">
+                <h3 id="total-users">0</h3>
+                <p>Всего пользователей</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon premium">⭐</div>
+            <div class="stat-content">
+                <h3 id="premium-users">0</h3>
+                <p>Premium подписчиков</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon revenue">💰</div>
+            <div class="stat-content">
+                <h3 id="total-revenue">$0</h3>
+                <p>Общий доход (примерный)</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon predictions">📊</div>
+            <div class="stat-content">
+                <h3 id="total-predictions">0</h3>
+                <p>Всего прогнозов</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список пользователей -->
+    <div class="data-section">
+        <div class="section-header">
+            <h2>Пользователи</h2>
+            <button class="btn btn-primary" onclick="refreshData()">🔄 Обновить</button>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Поиск по email или имени...">
+            <select id="filter-type" class="btn btn-secondary">
+                <option value="all">Все пользователи</option>
+                <option value="premium">Premium</option>
+                <option value="free">Free</option>
+                <option value="admin">Админы</option>
+            </select>
+        </div>
+        
+        <div id="users-container">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Загрузка данных...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Последние транзакции -->
+    <div class="data-section">
+        <div class="section-header">
+            <h2>Последние подписки</h2>
+        </div>
+        
+        <div id="subscriptions-container">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Загрузка подписок...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+let allUsers = [];
+
+async function loadStats() {
+    try {
+        const response = await fetch('/api/admin/stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('total-users').textContent = data.stats.total_users;
+            document.getElementById('premium-users').textContent = data.stats.premium_users;
+            document.getElementById('total-revenue').textContent = '$' + data.stats.estimated_revenue.toFixed(0);
+            document.getElementById('total-predictions').textContent = data.stats.total_predictions;
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
+
+async function loadUsers() {
+    try {
+        const response = await fetch('/api/admin/users');
+        const data = await response.json();
+        
+        if (data.success) {
+            allUsers = data.users;
+            renderUsers(allUsers);
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+        document.getElementById('users-container').innerHTML = '<p style="text-align:center; color:#dc3545;">Ошибка загрузки пользователей</p>';
+    }
+}
+
+function renderUsers(users) {
+    const container = document.getElementById('users-container');
+    
+    if (users.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#666;">Пользователи не найдены</p>';
+        return;
+    }
+    
+    const html = `
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Email</th>
+                        <th>Статус</th>
+                        <th>Прогнозов</th>
+                        <th>Регистрация</th>
+                        <th>Последний вход</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(user => `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.email}</td>
+                            <td>
+                                ${user.is_admin ? '<span class="badge badge-admin">Админ</span>' : ''}
+                                ${user.is_premium ? '<span class="badge badge-premium">Premium</span>' : '<span class="badge badge-free">Free</span>'}
+                            </td>
+                            <td>${user.daily_predictions_count || 0}</td>
+                            <td>${formatDate(user.created_at)}</td>
+                            <td>${user.last_login ? formatDate(user.last_login) : 'Никогда'}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    ${!user.is_premium ? `<button class="btn btn-sm btn-success" onclick="upgradeToPremium(${user.id})">⭐ Premium</button>` : ''}
+                                    ${!user.is_admin ? `<button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">🗑️ Удалить</button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+async function loadSubscriptions() {
+    try {
+        const response = await fetch('/api/admin/subscriptions');
+        const data = await response.json();
+        
+        if (data.success && data.subscriptions.length > 0) {
+            const html = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Пользователь</th>
+                                <th>Email</th>
+                                <th>Тип</th>
+                                <th>Начало</th>
+                                <th>Окончание</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.subscriptions.map(sub => `
+                                <tr>
+                                    <td>${sub.username}</td>
+                                    <td>${sub.email}</td>
+                                    <td>${sub.subscription_type || 'N/A'}</td>
+                                    <td>${formatDate(sub.created_at)}</td>
+                                    <td>${sub.subscription_end ? formatDate(sub.subscription_end) : 'N/A'}</td>
+                                    <td><span class="badge badge-premium">Активна</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            document.getElementById('subscriptions-container').innerHTML = html;
+        } else {
+            document.getElementById('subscriptions-container').innerHTML = '<p style="text-align:center; color:#666;">Подписок пока нет</p>';
+        }
+    } catch (error) {
+        console.error('Error loading subscriptions:', error);
+        document.getElementById('subscriptions-container').innerHTML = '<p style="text-align:center; color:#dc3545;">Ошибка загрузки подписок</p>';
+    }
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+async function upgradeToPremium(userId) {
+    if (!confirm('Предоставить Premium подписку этому пользователю?')) return;
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/upgrade`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Пользователь обновлен до Premium');
+            refreshData();
+        } else {
+            alert('❌ Ошибка: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Ошибка обновления');
+    }
+}
+
+async function deleteUser(userId) {
+    if (!confirm('Вы уверены, что хотите удалить этого пользователя? Это действие необратимо!')) return;
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Пользователь удален');
+            refreshData();
+        } else {
+            alert('❌ Ошибка: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Ошибка удаления');
+    }
+}
+
+function refreshData() {
+    loadStats();
+    loadUsers();
+    loadSubscriptions();
+}
+
+// Поиск и фильтрация
+document.getElementById('search-input').addEventListener('input', (e) => {
+    const search = e.target.value.toLowerCase();
+    const filter = document.getElementById('filter-type').value;
+    
+    let filtered = allUsers.filter(user => {
+        const matchesSearch = user.email.toLowerCase().includes(search) || 
+                            user.username.toLowerCase().includes(search);
+        
+        if (filter === 'all') return matchesSearch;
+        if (filter === 'premium') return matchesSearch && user.is_premium;
+        if (filter === 'free') return matchesSearch && !user.is_premium;
+        if (filter === 'admin') return matchesSearch && user.is_admin;
+        
+        return matchesSearch;
+    });
+    
+    renderUsers(filtered);
+});
+
+document.getElementById('filter-type').addEventListener('change', () => {
+    document.getElementById('search-input').dispatchEvent(new Event('input'));
+});
+
+// Загрузка данных при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    refreshData();
+});
+</script>
+{% endblock %}

@@ -5,7 +5,7 @@ import stripe
 from datetime import datetime, timedelta
 from config import Config
 from models import User, Subscription
-from app import db
+from extensions import db
 
 
 class StripeService:
