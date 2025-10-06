@@ -143,6 +143,21 @@ def create_app(config_name=None):
         """Профиль пользователя"""
         return render_template('profile.html')
     
+    @app.route('/impressum')
+    def impressum():
+        """Impressum - Контактная информация"""
+        return render_template('impressum.html')
+    
+    @app.route('/datenschutz')
+    def datenschutz():
+        """Datenschutz - Защита данных"""
+        return render_template('datenschutz.html')
+    
+    @app.route('/agb')
+    def agb():
+        """AGB - Общие условия использования"""
+        return render_template('agb.html')
+    
     # Обработчики ошибок
     # Веб-маршруты для HTML страниц
     @app.route('/login')

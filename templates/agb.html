@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}AGB - Allgemeine Geschäftsbedingungen - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<style>
+    .legal-page {
+        max-width: 900px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .legal-page h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .legal-page h2 {
+        font-size: 1.8rem;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+    
+    .legal-page h3 {
+        font-size: 1.3rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #667eea;
+    }
+    
+    .legal-page p {
+        line-height: 1.8;
+        color: #555;
+        margin-bottom: 1rem;
+    }
+    
+    .legal-page ul, .legal-page ol {
+        margin-left: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .legal-page li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+    
+    .warning-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 8px;
+    }
+    
+    .warning-box strong {
+        color: #856404;
+    }
+    
+    .legal-page strong {
+        color: #333;
+    }
+    
+    .last-updated {
+        text-align: center;
+        color: #888;
+        font-size: 0.9rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e0e0;
+    }
+</style>
+
+<div class="container">
+    <div class="legal-page">
+        <h1>Allgemeine Geschäftsbedingungen (AGB)</h1>
+        
+        <div class="warning-box">
+            <p><strong>⚠️ Wichtiger Hinweis:</strong></p>
+            <p>
+                GoalPredictor.AI ist ein Demonstrations- und Bildungsprojekt, das die Möglichkeiten 
+                von maschinellem Lernen und künstlicher Intelligenz im Bereich der Sportanalyse 
+                aufzeigt. Wir bieten keine Wettberatung an und garantieren keine Ergebnisse.
+            </p>
+        </div>
+        
+        <h2>§ 1 Geltungsbereich</h2>
+        <p>
+            (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend "AGB") gelten für alle Leistungen, 
+            die über die Website GoalPredictor.AI (nachfolgend "die Plattform") angeboten werden.
+        </p>
+        <p>
+            (2) Betreiber der Plattform ist Andrii Pylypchuk, AndriiIT, Bergmannweg 16, 
+            65934 Frankfurt am Main, Deutschland.
+        </p>
+        <p>
+            (3) Mit der Nutzung der Plattform erkennt der Nutzer diese AGB an.
+        </p>
+        
+        <h2>§ 2 Leistungsbeschreibung</h2>
+        <p>
+            (1) GoalPredictor.AI ist eine Plattform zur Demonstration von Machine Learning 
+            Technologien im Bereich der Fußballspielanalyse.
+        </p>
+        <p>
+            (2) Die Plattform bietet:
+        </p>
+        <ul>
+            <li>Statistische Analysen von Fußballspielen basierend auf öffentlich verfügbaren Daten</li>
+            <li>ML-basierte Wahrscheinlichkeitsberechnungen für Spielausgänge</li>
+            <li>KI-generierte Erklärungen und Analysen (optional)</li>
+            <li>Visualisierung von Statistiken und Trends</li>
+        </ul>
+        <p>
+            (3) <strong>Derzeit sind alle Funktionen kostenlos verfügbar.</strong> In Zukunft ist 
+            die Einführung von kostenpflichtigen Premium-Funktionen geplant. Bestehende Nutzer 
+            werden rechtzeitig über Preisänderungen informiert.
+        </p>
+        
+        <h2>§ 3 Datengrundlage und Methodik</h2>
+        <p>
+            (1) Die Plattform verwendet ausschließlich öffentlich verfügbare Daten aus zuverlässigen 
+            Quellen (z.B. Football-Data.org API, football-data.co.uk).
+        </p>
+        <p>
+            (2) Die Analysen basieren auf:
+        </p>
+        <ul>
+            <li>Historischen Spielergebnissen und Statistiken</li>
+            <li>Mathematischen und statistischen Modellen</li>
+            <li>Machine Learning Algorithmen (LightGBM, XGBoost, CatBoost, Random Forest)</li>
+            <li>Künstlicher Intelligenz (GPT-4) für Texterklärungen (optional)</li>
+        </ul>
+        <p>
+            (3) Alle Berechnungen erfolgen automatisiert ohne menschliche Manipulation.
+        </p>
+        
+        <h2>§ 4 Keine Garantie und Haftungsausschluss</h2>
+        
+        <div class="warning-box">
+            <p><strong>⚠️ WICHTIGER HAFTUNGSAUSSCHLUSS:</strong></p>
+            <ul>
+                <li>Wir übernehmen <strong>keine Garantie</strong> für die Richtigkeit von Prognosen</li>
+                <li>Wir haften <strong>nicht</strong> für finanzielle Verluste durch Nutzung unserer Analysen</li>
+                <li>Unsere Prognosen dienen <strong>ausschließlich zu Informations- und Bildungszwecken</strong></li>
+            </ul>
+        </div>
+        
+        <p>
+            (1) <strong>Keine Erfolgsgarantie:</strong> Die auf der Plattform bereitgestellten 
+            Prognosen, Analysen und Statistiken stellen keine Garantie für zukünftige Ereignisse dar. 
+            Sportergebnisse sind von Natur aus unvorhersehbar.
+        </p>
+        <p>
+            (2) <strong>Keine Wettberatung:</strong> GoalPredictor.AI ist keine Wettberatung und 
+            empfiehlt keine Wetten. Die Plattform dient ausschließlich der Demonstration von 
+            KI-Technologie und zu Bildungszwecken.
+        </p>
+        <p>
+            (3) <strong>Kein Glücksspiel:</strong> Wir sind nicht mit Buchmachern verbunden, nehmen 
+            keine Wetten an und bieten keine Glücksspieldienste an.
+        </p>
+        <p>
+            (4) <strong>Haftungsausschluss:</strong> Der Betreiber haftet nicht für:
+        </p>
+        <ul>
+            <li>Finanzielle Verluste durch Wetten basierend auf unseren Analysen</li>
+            <li>Ungenauigkeiten in den dargestellten Statistiken oder Prognosen</li>
+            <li>Technische Ausfälle oder Datenfehler</li>
+            <li>Entscheidungen, die Nutzer aufgrund der bereitgestellten Informationen treffen</li>
+            <li>Verluste durch Nutzung von Drittanbieter-APIs oder Datenquellen</li>
+        </ul>
+        <p>
+            (5) <strong>Modellgenauigkeit:</strong> Unsere ML-Modelle haben eine durchschnittliche 
+            Genauigkeit von ca. 67-81% basierend auf historischen Daten. Dies bedeutet nicht, dass 
+            zukünftige Prognosen diese Genauigkeit erreichen werden.
+        </p>
+        <p>
+            (6) Die Haftung für Vorsatz und grobe Fahrlässigkeit sowie bei Verletzung von Leben, 
+            Körper oder Gesundheit bleibt unberührt. Die Haftung nach dem Produkthaftungsgesetz 
+            bleibt ebenfalls unberührt.
+        </p>
+        
+        <h2>§ 5 Nutzung der Plattform</h2>
+        <p>
+            (1) <strong>Eigenverantwortung:</strong> Die Nutzung der Plattform erfolgt auf eigene 
+            Verantwortung. Jeder Nutzer ist selbst für seine Entscheidungen verantwortlich.
+        </p>
+        <p>
+            (2) <strong>Mindestalter:</strong> Die Nutzung der Plattform ist nur Personen ab 18 
+            Jahren gestattet.
+        </p>
+        <p>
+            (3) <strong>Verantwortungsvoller Umgang:</strong> Nutzer werden ermutigt, einen 
+            verantwortungsvollen Umgang mit Glücksspiel zu pflegen und sich über die Risiken zu 
+            informieren.
+        </p>
+        <p>
+            (4) <strong>Verbotene Nutzung:</strong> Es ist untersagt:
+        </p>
+        <ul>
+            <li>Die Plattform für illegale Zwecke zu nutzen</li>
+            <li>Daten systematisch zu extrahieren (Scraping) ohne Erlaubnis</li>
+            <li>Die Plattform zu manipulieren oder anzugreifen</li>
+            <li>Falsche Informationen über die Leistungen der Plattform zu verbreiten</li>
+        </ul>
+        
+        <h2>§ 6 Registrierung und Nutzerkonto</h2>
+        <p>
+            (1) Für die Nutzung bestimmter Funktionen ist eine Registrierung erforderlich.
+        </p>
+        <p>
+            (2) Bei der Registrierung müssen wahrheitsgemäße Angaben gemacht werden.
+        </p>
+        <p>
+            (3) Der Nutzer ist verpflichtet, seine Zugangsdaten vertraulich zu behandeln.
+        </p>
+        <p>
+            (4) Bei Missbrauch oder Verstoß gegen diese AGB kann das Nutzerkonto gesperrt werden.
+        </p>
+        
+        <h2>§ 7 Preise und Zahlungsbedingungen</h2>
+        <p>
+            (1) <strong>Aktueller Status:</strong> Derzeit sind alle Funktionen der Plattform 
+            <strong>kostenlos</strong> nutzbar.
+        </p>
+        <p>
+            (2) <strong>Zukünftige Preismodelle:</strong> Es ist geplant, in Zukunft kostenpflichtige 
+            Premium-Abonnements einzuführen. Diese können beinhalten:
+        </p>
+        <ul>
+            <li>Erweiterte Analysen und Statistiken</li>
+            <li>KI-generierte Erklärungen (GPT-4)</li>
+            <li>E-Mail-Benachrichtigungen</li>
+            <li>Werbefreie Nutzung</li>
+            <li>Priorisierter Support</li>
+        </ul>
+        <p>
+            (3) <strong>Preisänderungen:</strong> Änderungen der Preisstruktur werden mindestens 
+            30 Tage im Voraus per E-Mail angekündigt.
+        </p>
+        <p>
+            (4) <strong>Keine Kosten ohne Zustimmung:</strong> Es entstehen keine Kosten ohne 
+            ausdrückliche Zustimmung des Nutzers.
+        </p>
+        <p>
+            (5) Bei Einführung kostenpflichtiger Dienste gelten folgende Bedingungen:
+        </p>
+        <ul>
+            <li>Zahlungen erfolgen per Stripe oder anderen sicheren Zahlungsanbietern</li>
+            <li>Abonnements können monatlich oder jährlich abgeschlossen werden</li>
+            <li>Kündigungsfrist: bis zum Ende der Laufzeit</li>
+            <li>14-tägiges Widerrufsrecht gemäß EU-Verbraucherrecht</li>
+        </ul>
+        
+        <h2>§ 8 Geistiges Eigentum</h2>
+        <p>
+            (1) Alle Inhalte der Plattform (Texte, Grafiken, Logos, Software) sind urheberrechtlich 
+            geschützt.
+        </p>
+        <p>
+            (2) Die verwendeten Rohdaten stammen aus öffentlichen Quellen. Die Analysen und 
+            Berechnungen sind geistiges Eigentum des Betreibers.
+        </p>
+        <p>
+            (3) Eine kommerzielle Nutzung ohne Erlaubnis ist untersagt.
+        </p>
+        
+        <h2>§ 9 Datenschutz</h2>
+        <p>
+            Die Verarbeitung personenbezogener Daten erfolgt gemäß der EU-Datenschutz-Grundverordnung 
+            (DSGVO). Details finden Sie in unserer 
+            <a href="/datenschutz">Datenschutzerklärung</a>.
+        </p>
+        
+        <h2>§ 10 Änderungen der AGB</h2>
+        <p>
+            (1) Der Betreiber behält sich das Recht vor, diese AGB jederzeit zu ändern.
+        </p>
+        <p>
+            (2) Änderungen werden den Nutzern per E-Mail mitgeteilt und treten 30 Tage nach 
+            Mitteilung in Kraft.
+        </p>
+        <p>
+            (3) Widerspricht der Nutzer den geänderten AGB nicht innerhalb von 30 Tagen, gelten 
+            diese als akzeptiert.
+        </p>
+        
+        <h2>§ 11 Beendigung</h2>
+        <p>
+            (1) Nutzer können ihr Konto jederzeit ohne Angabe von Gründen löschen.
+        </p>
+        <p>
+            (2) Der Betreiber kann Konten bei Verstoß gegen diese AGB sperren oder löschen.
+        </p>
+        <p>
+            (3) Bei Beendigung werden personenbezogene Daten gemäß Datenschutzerklärung gelöscht.
+        </p>
+        
+        <h2>§ 12 Salvatorische Klausel</h2>
+        <p>
+            Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die 
+            Wirksamkeit der übrigen Bestimmungen hiervon unberührt.
+        </p>
+        
+        <h2>§ 13 Anwendbares Recht und Gerichtsstand</h2>
+        <p>
+            (1) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des 
+            UN-Kaufrechts.
+        </p>
+        <p>
+            (2) Gerichtsstand ist Frankfurt am Main, soweit der Nutzer Kaufmann, juristische 
+            Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen ist.
+        </p>
+        
+        <h2>§ 14 Kontakt</h2>
+        <p>
+            Bei Fragen zu diesen AGB wenden Sie sich bitte an:
+        </p>
+        <p>
+            <strong>E-Mail:</strong> <a href="mailto:andrii.it.info@gmail.com">andrii.it.info@gmail.com</a><br>
+            <strong>Adresse:</strong> Bergmannweg 16, 65934 Frankfurt am Main, Deutschland
+        </p>
+        
+        <div class="warning-box">
+            <p><strong>📊 Transparenz-Hinweis:</strong></p>
+            <p>
+                Wir sind ein Open-Source-Projekt und legen Wert auf Transparenz. Unsere ML-Modelle 
+                und Methoden sind dokumentiert. Wir zeigen sowohl erfolgreiche als auch 
+                fehlgeschlagene Prognosen. Ehrlichkeit ist unsere Priorität.
+            </p>
+        </div>
+        
+        <div class="last-updated">
+            <p><strong>Stand:</strong> Oktober 2025</p>
+            <p>Version 1.0</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
