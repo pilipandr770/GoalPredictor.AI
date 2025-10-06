@@ -202,9 +202,11 @@ def create_app(config_name=None):
     return app
 
 
+# Создание глобального экземпляра приложения для Gunicorn
+app = create_app()
+
+
 if __name__ == '__main__':
-    app = create_app()
-    
     # Запуск планировщика задач в отдельном потоке
     from services.scheduler import start_scheduler
     start_scheduler(app)
