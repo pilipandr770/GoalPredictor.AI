@@ -28,12 +28,12 @@ redis==5.0.1
 
 # База данных
 psycopg2-binary==2.9.9
-SQLAlchemy==2.0.23
+SQLAlchemy==2.0.36
 
 # Утилиты
-python-dotenv==1.0.0
-python-dateutil==2.8.2
-pytz==2023.3.post1
+python-dotenv==1.0.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
 
 # Email уведомления
 Flask-Mail==0.9.1
@@ -44,5 +44,5 @@ bcrypt==4.1.1
 PyJWT==2.8.0
 
 # Тестирование
-pytest==7.4.3
-pytest-cov==4.1.0
+pytest==8.3.4
+pytest-cov==6.0.0
