@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Вход - GoalPredictor.AI{% endblock %}
+{% block title %}Anmelden - GoalPredictor.AI{% endblock %}
 
 {% block content %}
 <style>
@@ -140,52 +140,52 @@
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h1>👋 Добро пожаловать</h1>
-            <p>Войдите в свой аккаунт GoalPredictor.AI</p>
+            <h1>👋 Willkommen zurück</h1>
+            <p>Melden Sie sich bei Ihrem GoalPredictor.AI-Konto an</p>
         </div>
         
         <div id="alert-container"></div>
         
         <form id="loginForm">
             <div class="form-group">
-                <label class="form-label" for="email">Email</label>
+                <label class="form-label" for="email">E-Mail</label>
                 <input 
                     type="email" 
                     class="form-control" 
                     id="email" 
                     name="email" 
                     required
-                    placeholder="your@email.com">
+                    placeholder="ihre@email.com">
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="password">Пароль</label>
+                <label class="form-label" for="password">Passwort</label>
                 <input 
                     type="password" 
                     class="form-control" 
                     id="password" 
                     name="password" 
                     required
-                    placeholder="Введите пароль">
+                    placeholder="Passwort eingeben">
                 <div class="forgot-password">
-                    <a href="/forgot-password">Забыли пароль?</a>
+                    <a href="/forgot-password">Passwort vergessen?</a>
                 </div>
             </div>
             
             <div class="form-group">
                 <div class="form-check">
                     <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Запомнить меня</label>
+                    <label for="remember">Angemeldet bleiben</label>
                 </div>
             </div>
             
             <button type="submit" class="btn-primary" id="submitBtn">
-                Войти
+                Anmelden
             </button>
         </form>
         
         <div class="auth-footer">
-            Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+            Noch kein Konto? <a href="/register">Registrieren</a>
         </div>
     </div>
 </div>
@@ -211,7 +211,7 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Вход...';
+    submitBtn.textContent = 'Anmeldung läuft...';
     
     try {
         const response = await fetch('/api/auth/login', {
@@ -229,9 +229,9 @@ form.addEventListener('submit', async (e) => {
         const data = await response.json();
         
         if (data.success) {
-            showAlert('Вход выполнен! Перенаправление...', 'success');
+            showAlert('Anmeldung erfolgreich! Weiterleitung...', 'success');
             
-            // Проверить, является ли пользователь админом
+            // Prüfen ob Benutzer Admin ist
             if (data.user && data.user.is_admin) {
                 setTimeout(() => {
                     window.location.href = '/admin';
@@ -242,15 +242,15 @@ form.addEventListener('submit', async (e) => {
                 }, 1500);
             }
         } else {
-            showAlert(data.error || 'Неверный email или пароль');
+            showAlert(data.error || 'Ungültige E-Mail oder Passwort');
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Войти';
+            submitBtn.textContent = 'Anmelden';
         }
     } catch (error) {
         console.error('Error:', error);
-        showAlert('Ошибка соединения с сервером');
+        showAlert('Verbindungsfehler zum Server');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Войти';
+        submitBtn.textContent = 'Anmelden';
     }
 });
 </script>

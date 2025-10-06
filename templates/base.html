@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}GoalPredictor.AI - Аналитика футбольных матчей{% endblock %}</title>
+    <title>{% block title %}GoalPredictor.AI - Fußballanalyse{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
@@ -20,10 +20,10 @@
             </div>
             
             <div class="navbar-menu">
-                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
-                <a href="{{ url_for('predictions') }}" class="nav-link">Прогнозы</a>
-                <a href="{{ url_for('about') }}" class="nav-link">О нас</a>
-                <a href="{{ url_for('pricing') }}" class="nav-link">Тарифы</a>
+                <a href="{{ url_for('index') }}" class="nav-link">Startseite</a>
+                <a href="{{ url_for('predictions') }}" class="nav-link">Prognosen</a>
+                <a href="{{ url_for('about') }}" class="nav-link">Über uns</a>
+                <a href="{{ url_for('pricing') }}" class="nav-link">Preise</a>
                 
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('profile') }}" class="nav-link">
@@ -33,9 +33,9 @@
                             <span class="badge premium">Premium</span>
                         {% endif %}
                     </a>
-                    <a href="/api/auth/logout" class="btn btn-outline">Выход</a>
+                    <a href="/api/auth/logout" class="btn btn-outline">Abmelden</a>
                 {% else %}
-                    <a href="#" class="btn btn-primary" onclick="showLoginModal()">Войти</a>
+                    <a href="#" class="btn btn-primary" onclick="showLoginModal()">Anmelden</a>
                 {% endif %}
             </div>
         </div>
@@ -64,7 +64,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>GoalPredictor.AI</h3>
-                    <p>Интеллектуальная аналитика футбольных матчей на основе статистики и машинного обучения.</p>
+                    <p>Intelligente Fußballanalyse basierend auf Statistik und maschinellem Lernen.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-twitter"></i></a>
                         <a href="#"><i class="fab fa-telegram"></i></a>
@@ -73,39 +73,39 @@
                 </div>
                 
                 <div class="footer-section">
-                    <h4>Продукт</h4>
+                    <h4>Produkt</h4>
                     <ul>
-                        <li><a href="{{ url_for('predictions') }}">Прогнозы</a></li>
-                        <li><a href="{{ url_for('pricing') }}">Тарифы</a></li>
-                        <li><a href="{{ url_for('about') }}">О проекте</a></li>
+                        <li><a href="{{ url_for('predictions') }}">Prognosen</a></li>
+                        <li><a href="{{ url_for('pricing') }}">Preise</a></li>
+                        <li><a href="{{ url_for('about') }}">Über das Projekt</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
-                    <h4>Поддержка</h4>
+                    <h4>Support</h4>
                     <ul>
-                        <li><a href="#">Документация</a></li>
+                        <li><a href="#">Dokumentation</a></li>
                         <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Контакты</a></li>
+                        <li><a href="#">Kontakt</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
-                    <h4>Правовая информация</h4>
+                    <h4>Rechtliches</h4>
                     <ul>
-                        <li><a href="#">Политика конфиденциальности</a></li>
-                        <li><a href="#">Условия использования</a></li>
-                        <li><a href="#">Отказ от ответственности</a></li>
+                        <li><a href="#">Datenschutz</a></li>
+                        <li><a href="#">Nutzungsbedingungen</a></li>
+                        <li><a href="#">Haftungsausschluss</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 GoalPredictor.AI. Все права защищены.</p>
+                <p>&copy; 2025 GoalPredictor.AI. Alle Rechte vorbehalten.</p>
                 <p class="disclaimer">
                     <i class="fas fa-exclamation-triangle"></i>
-                    Мы не принимаем ставки и не связаны с букмекерскими конторами. 
-                    Прогнозы основаны на статистике и не гарантируют результат.
+                    Wir nehmen keine Wetten an und sind nicht mit Buchmachern verbunden. 
+                    Prognosen basieren auf Statistiken und garantieren kein Ergebnis.
                 </p>
             </div>
         </div>
