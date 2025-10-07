@@ -1,6 +1,7 @@
 """
 Модели базы данных для GoalPredictor.AI
 """
+import os
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,6 +11,7 @@ from extensions import db
 class User(UserMixin, db.Model):
     """Модель пользователя"""
     __tablename__ = 'users'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
@@ -74,6 +76,7 @@ class User(UserMixin, db.Model):
 class Team(db.Model):
     """Модель команды"""
     __tablename__ = 'teams'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
     api_id = db.Column(db.Integer, unique=True, nullable=False, index=True)
@@ -100,6 +103,7 @@ class Team(db.Model):
 class Match(db.Model):
     """Модель матча"""
     __tablename__ = 'matches'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
     api_id = db.Column(db.Integer, unique=True, nullable=False, index=True)
@@ -142,6 +146,7 @@ class Match(db.Model):
 class Prediction(db.Model):
     """Модель прогноза"""
     __tablename__ = 'predictions'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
     match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=False)
@@ -170,6 +175,7 @@ class Prediction(db.Model):
 class UserPrediction(db.Model):
     """История просмотров прогнозов пользователем"""
     __tablename__ = 'user_predictions'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -182,6 +188,7 @@ class UserPrediction(db.Model):
 class Subscription(db.Model):
     """Модель подписки"""
     __tablename__ = 'subscriptions'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
