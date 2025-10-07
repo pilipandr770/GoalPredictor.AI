@@ -4,11 +4,15 @@
 Использует прямое подключение к PostgreSQL без Flask
 """
 import os
+import sys
 import psycopg2
-from dotenv import load_dotenv
 
-# Загрузка переменных окружения
-load_dotenv()
+# Загружаем dotenv только если запускается локально
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # На Render dotenv может не быть установлен до requirements.txt
 
 
 def update_database_schema():
