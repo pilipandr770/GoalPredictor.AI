@@ -1,0 +1,27 @@
+{
+  "trained_at": "2025-10-07T14:45:51.816486",
+  "train_samples": 5014,
+  "feature_count": 19,
+  "features": [
+    "home_recent_wins",
+    "home_recent_draws",
+    "home_recent_losses",
+    "home_recent_goals_for",
+    "home_recent_goals_against",
+    "home_recent_form_points",
+    "away_recent_wins",
+    "away_recent_draws",
+    "away_recent_losses",
+    "away_recent_goals_for",
+    "away_recent_goals_against",
+    "away_recent_form_points",
+    "h2h_home_wins",
+    "h2h_draws",
+    "h2h_away_wins",
+    "home_avg_goals",
+    "home_total_matches",
+    "away_avg_goals",
+    "away_total_matches"
+  ],
+  "version": "v3.0_temporal_calibrated"
+}

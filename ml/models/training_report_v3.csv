@@ -1,0 +1,11 @@
+Target,Model,Accuracy_Train,Accuracy_Test,ROC_AUC_Test,Brier_Test,PR_AUC_Test,Precision,Recall,F1
+over_2_5,RandomForest,67.1%,54.4%,0.520,0.248,0.571,55.0%,86.7%,0.673
+over_2_5,GradientBoosting,64.3%,52.9%,0.507,0.249,0.570,53.9%,90.6%,0.676
+btts,RandomForest,54.1%,55.9%,0.497,0.247,0.561,55.9%,100.0%,0.717
+btts,GradientBoosting,54.1%,55.9%,0.523,0.247,0.579,55.9%,100.0%,0.717
+home_win,RandomForest,68.4%,63.7%,0.677,0.223,0.586,58.9%,51.9%,0.552
+home_win,GradientBoosting,71.8%,63.3%,0.662,0.229,0.560,59.7%,45.6%,0.517
+draw,RandomForest,74.9%,75.4%,0.523,0.186,0.255,0.0%,0.0%,0.000
+draw,GradientBoosting,74.9%,75.4%,0.520,0.185,0.258,0.0%,0.0%,0.000
+away_win,RandomForest,72.6%,69.4%,0.685,0.200,0.498,61.3%,14.2%,0.231
+away_win,GradientBoosting,71.4%,67.3%,0.662,0.206,0.447,16.7%,0.3%,0.006
