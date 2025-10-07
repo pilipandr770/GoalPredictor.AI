@@ -109,8 +109,8 @@ class Match(db.Model):
     api_id = db.Column(db.Integer, unique=True, nullable=False, index=True)
     
     # Команды
-    home_team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
-    away_team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
+    home_team_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.teams.id'), nullable=False)
+    away_team_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.teams.id'), nullable=False)
     
     home_team = db.relationship('Team', foreign_keys=[home_team_id])
     away_team = db.relationship('Team', foreign_keys=[away_team_id])
@@ -149,7 +149,7 @@ class Prediction(db.Model):
     __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=False)
+    match_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.matches.id'), nullable=False)
     
     # Прогноз
     prediction_type = db.Column(db.String(50), default='over_2.5')  # over_2.5, btts, etc.
@@ -178,8 +178,8 @@ class UserPrediction(db.Model):
     __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    prediction_id = db.Column(db.Integer, db.ForeignKey('predictions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.users.id'), nullable=False)
+    prediction_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.predictions.id'), nullable=False)
     viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     prediction = db.relationship('Prediction', backref='user_views')
@@ -191,7 +191,7 @@ class Subscription(db.Model):
     __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.users.id'), nullable=False)
     
     # Stripe данные
     stripe_subscription_id = db.Column(db.String(255), unique=True, nullable=False)
