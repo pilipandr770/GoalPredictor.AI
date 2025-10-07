@@ -36,7 +36,7 @@ class TemporalMLTrainer:
         'result', 'score', 'goals'  # На всякий випадок
     ]
     
-    def __init__(self, data_path='ml/data/training_data.csv'):
+    def __init__(self, data_path='ml/data/training_data_enhanced.csv'):
         self.data_path = data_path
         self.df = None
         self.models = {}
