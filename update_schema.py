@@ -24,41 +24,63 @@ def update_database_schema():
     
     if not database_url:
         print("❌ DATABASE_URL не найден в переменных окружения")
+        print("📋 Доступные переменные окружения:")
+        for key in os.environ.keys():
+            if 'DATA' in key or 'SCHEMA' in key:
+                print(f"   {key} = {os.environ[key][:50]}...")
         return
     
     print(f"📊 Схема: {schema}")
-    print(f"� Подключение к базе данных...")
+    print(f"🔗 Подключение к базе данных...")
+    print(f"📍 URL: {database_url[:50]}...")
     
     try:
         # Подключение к PostgreSQL
         conn = psycopg2.connect(database_url)
         conn.autocommit = True
         cursor = conn.cursor()
+        print("✅ Подключение установлено")
         
         # Устанавливаем search_path
         cursor.execute(f"SET search_path TO {schema}")
         print(f"✅ Установлен search_path: {schema}")
         
-        # Проверяем, есть ли колонка is_premium
+        # Проверяем текущие колонки в таблице users
         cursor.execute("""
             SELECT column_name 
             FROM information_schema.columns 
             WHERE table_schema = %s
-            AND table_name = 'users' 
-            AND column_name = 'is_premium'
+            AND table_name = 'users'
+            ORDER BY ordinal_position
         """, (schema,))
         
-        result = cursor.fetchone()
+        existing_columns = [row[0] for row in cursor.fetchall()]
+        print(f"📋 Существующие колонки в users: {', '.join(existing_columns)}")
         
-        if result is None:
+        # Проверяем, есть ли колонка is_premium
+        if 'is_premium' in existing_columns:
+            print("✓ Колонка is_premium уже существует")
+        else:
             print("📝 Добавляем колонку is_premium...")
             cursor.execute(f"""
                 ALTER TABLE {schema}.users 
                 ADD COLUMN is_premium BOOLEAN DEFAULT FALSE
             """)
             print("✅ Колонка is_premium добавлена")
-        else:
-            print("✓ Колонка is_premium уже существует")
+            
+            # Проверяем результат
+            cursor.execute("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_schema = %s
+                AND table_name = 'users' 
+                AND column_name = 'is_premium'
+            """, (schema,))
+            
+            if cursor.fetchone():
+                print("✅ Проверка: колонка is_premium успешно создана")
+            else:
+                print("⚠️  Предупреждение: колонка не найдена после создания!")
         
         cursor.close()
         conn.close()
