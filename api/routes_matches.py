@@ -77,7 +77,7 @@ def get_upcoming_matches_from_db():
             # что расписание обновится завтра
             return {
                 'no_data': True,
-                'message': 'Расписание обновляется ежедневно в 07:00'
+                'message': 'Der Spielplan wird täglich um 07:00 Uhr aktualisiert'
             }
         
         # Группировать по дате
