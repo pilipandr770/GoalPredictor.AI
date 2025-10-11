@@ -48,7 +48,10 @@ class User(UserMixin, db.Model):
     is_active = db.Column(db.Boolean, default=True)
     
     # Связи
-    predictions = db.relationship('UserPrediction', backref='user', lazy='dynamic')
+    predictions = db.relationship('UserPrediction', 
+                                 foreign_keys='UserPrediction.user_id',
+                                 primaryjoin='User.id==UserPrediction.user_id',
+                                 backref='user', lazy='dynamic')
     
     def set_password(self, password):
         """Установить хэш пароля"""
@@ -151,7 +154,10 @@ class Match(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Связи
-    predictions = db.relationship('Prediction', backref='match', lazy='dynamic')
+    predictions = db.relationship('Prediction', 
+                                 foreign_keys='Prediction.match_id',
+                                 primaryjoin='Match.id==Prediction.match_id',
+                                 backref='match', lazy='dynamic')
     
     def __repr__(self):
         return f'<Match {self.home_team.name} vs {self.away_team.name}>'
@@ -196,7 +202,10 @@ class UserPrediction(db.Model):
     prediction_id = db.Column(db.Integer, nullable=False)
     viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    prediction = db.relationship('Prediction', backref='user_views')
+    prediction = db.relationship('Prediction', 
+                                foreign_keys=[prediction_id],
+                                primaryjoin='UserPrediction.prediction_id==Prediction.id',
+                                backref='user_views')
 
 
 class Subscription(db.Model):
@@ -328,7 +337,10 @@ class TennisPrediction(db.Model):
     model_version = db.Column(db.String(50), nullable=True)
     
     # Связь
-    match = db.relationship('TennisMatch', backref='predictions')
+    match = db.relationship('TennisMatch', 
+                          foreign_keys=[match_id],
+                          primaryjoin='TennisPrediction.match_id==TennisMatch.id',
+                          backref='predictions')
     
     def __repr__(self):
         return f'<TennisPrediction P1:{self.player1_win_probability:.0%} vs P2:{self.player2_win_probability:.0%}>'
