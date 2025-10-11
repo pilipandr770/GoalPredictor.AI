@@ -216,3 +216,103 @@ class Subscription(db.Model):
     
     def __repr__(self):
         return f'<Subscription {self.stripe_subscription_id} - {self.status}>'
+
+
+# ============================================================================
+# TENNIS MODELS
+# ============================================================================
+
+class TennisPlayer(db.Model):
+    """Модель теннисиста"""
+    __tablename__ = 'tennis_players'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    
+    id = db.Column(db.Integer, primary_key=True)
+    atp_id = db.Column(db.Integer, unique=True, index=True)  # ID из ATP базы
+    name = db.Column(db.String(100), nullable=False)
+    country = db.Column(db.String(3))  # ISO код (e.g. 'USA', 'ESP')
+    
+    # Рейтинг
+    current_rank = db.Column(db.Integer)
+    current_points = db.Column(db.Integer)
+    
+    # Статистика
+    career_wins = db.Column(db.Integer, default=0)
+    career_losses = db.Column(db.Integer, default=0)
+    
+    # Метаданные
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<TennisPlayer {self.name} (#{self.current_rank})>'
+
+
+class TennisMatch(db.Model):
+    """Модель теннисного матча"""
+    __tablename__ = 'tennis_matches'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    
+    id = db.Column(db.Integer, primary_key=True)
+    api_id = db.Column(db.String(100), unique=True, index=True)  # ID из API
+    
+    # Турнир
+    tournament_name = db.Column(db.String(150), nullable=False)
+    tournament_level = db.Column(db.String(20))  # 'G' (Grand Slam), 'M' (Masters), etc.
+    surface = db.Column(db.String(20))  # 'Hard', 'Clay', 'Grass'
+    round = db.Column(db.String(20))  # 'R32', 'R16', 'QF', 'SF', 'F'
+    
+    # Игроки
+    player1_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.tennis_players.id'), nullable=False)
+    player2_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.tennis_players.id'), nullable=False)
+    
+    player1 = db.relationship('TennisPlayer', foreign_keys=[player1_id])
+    player2 = db.relationship('TennisPlayer', foreign_keys=[player2_id])
+    
+    # Дата и время
+    match_date = db.Column(db.DateTime, nullable=False, index=True)
+    
+    # Результат (если матч завершен)
+    completed = db.Column(db.Boolean, default=False)
+    winner_id = db.Column(db.Integer)  # ID победителя
+    score = db.Column(db.String(50))  # '6-4, 7-5'
+    
+    # Метаданные
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<TennisMatch {self.player1.name} vs {self.player2.name}>'
+
+
+class TennisPrediction(db.Model):
+    """Модель прогноза на теннисный матч"""
+    __tablename__ = 'tennis_predictions'
+    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    
+    id = db.Column(db.Integer, primary_key=True)
+    match_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.tennis_matches.id'), nullable=False)
+    
+    # Прогноз
+    player1_win_probability = db.Column(db.Float, nullable=False)  # 0.0 - 1.0
+    player2_win_probability = db.Column(db.Float, nullable=False)
+    
+    confidence = db.Column(db.String(20), nullable=False)  # 'high', 'medium', 'low'
+    
+    # Объяснение (от OpenAI)
+    explanation = db.Column(db.Text, nullable=True)
+    factors = db.Column(db.JSON, nullable=True)  # Ключевые факторы
+    
+    # Результат (после завершения матча)
+    is_correct = db.Column(db.Boolean, nullable=True)
+    actual_winner_id = db.Column(db.Integer, nullable=True)
+    
+    # Метаданные
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    model_version = db.Column(db.String(50), nullable=True)
+    
+    # Связь
+    match = db.relationship('TennisMatch', backref='predictions')
+    
+    def __repr__(self):
+        return f'<TennisPrediction P1:{self.player1_win_probability:.0%} vs P2:{self.player2_win_probability:.0%}>'
