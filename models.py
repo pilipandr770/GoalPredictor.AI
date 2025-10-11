@@ -235,7 +235,10 @@ class Subscription(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Связь
-    user = db.relationship('User', backref=db.backref('subscriptions', lazy='dynamic'))
+    user = db.relationship('User', 
+                          foreign_keys=[user_id],
+                          primaryjoin='Subscription.user_id==User.id',
+                          backref=db.backref('subscriptions', lazy='dynamic'))
     
     def __repr__(self):
         return f'<Subscription {self.stripe_subscription_id} - {self.status}>'
