@@ -121,11 +121,13 @@ class Match(db.Model):
     api_id = db.Column(db.Integer, unique=True, nullable=False, index=True)
     
     # Команды
-    home_team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
-    away_team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
+    home_team_id = db.Column(db.Integer, nullable=False)
+    away_team_id = db.Column(db.Integer, nullable=False)
     
-    home_team = db.relationship('Team', foreign_keys=[home_team_id])
-    away_team = db.relationship('Team', foreign_keys=[away_team_id])
+    home_team = db.relationship('Team', foreign_keys=[home_team_id],
+                               primaryjoin='Match.home_team_id==Team.id')
+    away_team = db.relationship('Team', foreign_keys=[away_team_id],
+                               primaryjoin='Match.away_team_id==Team.id')
     
     # Информация о матче
     league = db.Column(db.String(50), nullable=False)
@@ -161,7 +163,7 @@ class Prediction(db.Model):
     __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=False)
+    match_id = db.Column(db.Integer, nullable=False)
     
     # Прогноз
     prediction_type = db.Column(db.String(50), default='over_2.5')  # over_2.5, btts, etc.
@@ -190,8 +192,8 @@ class UserPrediction(db.Model):
     __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    prediction_id = db.Column(db.Integer, db.ForeignKey('predictions.id'), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    prediction_id = db.Column(db.Integer, nullable=False)
     viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     prediction = db.relationship('Prediction', backref='user_views')
@@ -203,7 +205,7 @@ class Subscription(db.Model):
     __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
     
     # Stripe данные
     stripe_subscription_id = db.Column(db.String(255), unique=True, nullable=False)
@@ -275,11 +277,13 @@ class TennisMatch(db.Model):
     round = db.Column(db.String(20))  # 'R32', 'R16', 'QF', 'SF', 'F'
     
     # Игроки
-    player1_id = db.Column(db.Integer, db.ForeignKey('tennis_players.id'), nullable=False)
-    player2_id = db.Column(db.Integer, db.ForeignKey('tennis_players.id'), nullable=False)
+    player1_id = db.Column(db.Integer, nullable=False)
+    player2_id = db.Column(db.Integer, nullable=False)
     
-    player1 = db.relationship('TennisPlayer', foreign_keys=[player1_id])
-    player2 = db.relationship('TennisPlayer', foreign_keys=[player2_id])
+    player1 = db.relationship('TennisPlayer', foreign_keys=[player1_id], 
+                             primaryjoin='TennisMatch.player1_id==TennisPlayer.id')
+    player2 = db.relationship('TennisPlayer', foreign_keys=[player2_id],
+                             primaryjoin='TennisMatch.player2_id==TennisPlayer.id')
     
     # Дата и время
     match_date = db.Column(db.DateTime, nullable=False, index=True)
@@ -303,7 +307,7 @@ class TennisPrediction(db.Model):
     __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.Integer, db.ForeignKey('tennis_matches.id'), nullable=False)
+    match_id = db.Column(db.Integer, nullable=False)
     
     # Прогноз
     player1_win_probability = db.Column(db.Float, nullable=False)  # 0.0 - 1.0
