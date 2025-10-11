@@ -46,12 +46,22 @@ def create_app(config_name=None):
     from api.routes_subscriptions import subscriptions_bp
     from api.routes_auth import auth_bp
     from api.routes_admin import admin_bp
+    from api.routes_tennis import tennis_bp  # 🎾 Tennis routes
+    from api.routes_football import football_bp  # ⚽ Football routes
     
     app.register_blueprint(matches_bp, url_prefix='/api/matches')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(subscriptions_bp, url_prefix='/api/subscriptions')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(tennis_bp)  # 🎾 /api/tennis/*
+    app.register_blueprint(football_bp)  # ⚽ /api/football/*
+    
+    # Инициализация tennis prediction service при старте
+    with app.app_context():
+        from tennis.predict import get_tennis_prediction_service
+        tennis_service = get_tennis_prediction_service()
+        print(f"🎾 Tennis prediction service initialized")
     
     # API эндпоинты для прогнозов
     @app.route('/api/predictions/upcoming')
@@ -137,6 +147,27 @@ def create_app(config_name=None):
     def pricing():
         """Тарифы и подписки"""
         return render_template('pricing.html')
+    
+    @app.route('/tennis')
+    def tennis():
+        """Страница прогнозов тенниса"""
+        return render_template('tennis.html')
+    
+    @app.route('/football')
+    def football():
+        """Страница прогнозов футбола"""
+        from datetime import datetime
+        return render_template('football.html', now=datetime.now().strftime('%H:%M:%S'))
+    
+    @app.route('/football-test')
+    def football_test():
+        """Тестовая страница для отладки Football API"""
+        return render_template('football_test.html')
+    
+    @app.route('/test-simple')
+    def test_simple():
+        """Простейший тест JavaScript"""
+        return render_template('test_simple.html')
     
     @app.route('/profile')
     def profile():

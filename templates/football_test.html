@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Football API Test</title>
+</head>
+<body>
+    <h1>Football API Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        console.log('🔧 Test page loaded');
+        
+        async function testAPI() {
+            console.log('🔧 Button clicked');
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const url = '/api/football/matches?days=1';
+                console.log('🌐 Fetching:', url);
+                
+                const response = await fetch(url);
+                console.log('📥 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📦 Response data:', data);
+                
+                resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultDiv.innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        // Auto-test on load
+        console.log('🔧 Starting auto-test in 1 second...');
+        setTimeout(testAPI, 1000);
+    </script>
+</body>
+</html>

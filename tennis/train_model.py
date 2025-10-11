@@ -191,16 +191,16 @@ class TennisModelTrainer:
         models_dir = Path('tennis/models')
         models_dir.mkdir(exist_ok=True, parents=True)
         
-        # Save model
+        # Save model (protocol=4 for compatibility with older sklearn)
         model_path = models_dir / 'tennis_player1_win_model.pkl'
         with open(model_path, 'wb') as f:
-            pickle.dump(self.model, f)
+            pickle.dump(self.model, f, protocol=4)
         print(f"  ✓ {model_path}")
         
         # Save feature columns
         feature_path = models_dir / 'tennis_feature_columns.pkl'
         with open(feature_path, 'wb') as f:
-            pickle.dump(self.feature_columns, f)
+            pickle.dump(self.feature_columns, f, protocol=4)
         print(f"  ✓ {feature_path}")
         
         # Save metadata

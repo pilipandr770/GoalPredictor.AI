@@ -5,7 +5,7 @@ services:
     runtime: python
     region: frankfurt  # EU region for Germany
     plan: free  # Start with free tier
-    buildCommand: "pip install --upgrade pip && pip install --no-cache-dir --force-reinstall -r requirements.txt && python migrate_to_postgres.py && python force_update_schema.py && python create_default_admin.py"
+    buildCommand: "pip install --upgrade pip && pip install --no-cache-dir --force-reinstall -r requirements.txt && python check_render_migrations.py && python create_default_admin.py"
     startCommand: "gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 app:app"
     envVars:
       - key: FLASK_ENV

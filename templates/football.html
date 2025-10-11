@@ -1,0 +1,544 @@
+{% extends "base.html" %}
+
+{% block title %}Fußball-Prognosen - GoalPredictor.AI{% endblock %}
+
+{% block content %}
+<!-- FORCE RELOAD: v2.2 timestamp:{{ now }} -->
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 class="mb-2">
+                        <span class="me-2">⚽</span>
+                        Fußball-Prognosen
+                    </h1>
+                    <p class="text-muted mb-0">
+                        KI-gestützte Vorhersagen für internationale Fußball-Ligen
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Date Range Filter -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="far fa-calendar me-2"></i>Zeitraum
+                            </label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="dateRange" id="day1" value="1">
+                                <label class="btn btn-outline-primary" for="day1">Heute</label>
+                                
+                                <input type="radio" class="btn-check" name="dateRange" id="day7" value="7" checked>
+                                <label class="btn btn-outline-primary" for="day7">7 Tage</label>
+                                
+                                <input type="radio" class="btn-check" name="dateRange" id="day14" value="14">
+                                <label class="btn btn-outline-primary" for="day14">14 Tage</label>
+                            </div>
+                        </div>
+
+                        <!-- Competition Filter -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-trophy me-2"></i>Wettbewerb
+                            </label>
+                            <select class="form-select" id="competitionFilter">
+                                <option value="">Alle Wettbewerbe</option>
+                                <!-- Will be populated dynamically -->
+                            </select>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-search me-2"></i>Suche
+                            </label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Mannschaft suchen...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-primary mb-0" id="totalMatches">0</h4>
+                    <small class="text-muted">Gesamt Matches</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-success mb-0" id="todayMatches">0</h4>
+                    <small class="text-muted">Heute</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-info mb-0" id="competitionsCount">0</h4>
+                    <small class="text-muted">Wettbewerbe</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-5" style="display: none;">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Lade...</span>
+        </div>
+        <p class="text-muted">Lade Fußball-Matches...</p>
+    </div>
+
+    <!-- Matches Container -->
+    <div id="matchesContainer" class="row g-3">
+        <!-- Matches will be inserted here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-5" style="display: none;">
+        <i class="fas fa-futbol fa-4x text-muted mb-3"></i>
+        <h4>Keine Matches gefunden</h4>
+        <p class="text-muted">Versuchen Sie einen anderen Zeitraum oder Filter</p>
+    </div>
+</div>
+
+<!-- Prediction Modal -->
+<div class="modal fade" id="predictionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Match-Prognose</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="predictionContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Generiere Prognose...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.match-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: white;
+    overflow: hidden;
+}
+
+.match-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    border-color: #4285f4;
+}
+
+.match-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 16px;
+}
+
+.team-section {
+    padding: 20px;
+}
+
+.team-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.team-crest {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.match-time {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.competition-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.vs-divider {
+    font-weight: bold;
+    color: #999;
+    font-size: 1.2rem;
+}
+</style>
+
+<script>
+console.log('[FOOTBALL] Script loaded');
+
+// User authentication state (from server)
+const isAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
+const isPremium = {{ 'true' if current_user.is_authenticated and current_user.is_premium else 'false' }};
+
+let currentMatchId = null;
+let allMatches = [];
+let competitions = new Set();
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize
+    console.log('[FOOTBALL] DOMContentLoaded event fired');
+    console.log('[FOOTBALL] matchesContainer:', document.getElementById('matchesContainer'));
+    console.log('[FOOTBALL] Calling loadMatches()...');
+    
+    loadMatches();
+    
+    // Event listeners
+    document.querySelectorAll('input[name="dateRange"]').forEach(input => {
+        input.addEventListener('change', loadMatches);
+    });
+    
+    document.getElementById('competitionFilter').addEventListener('change', filterMatches);
+    document.getElementById('searchInput').addEventListener('input', filterMatches);
+});
+
+async function loadMatches() {
+    console.log('[FOOTBALL] loadMatches() called');
+    
+    const days = document.querySelector('input[name="dateRange"]:checked').value;
+    console.log('[FOOTBALL] Selected days:', days);
+    
+    const loadingState = document.getElementById('loadingState');
+    const matchesContainer = document.getElementById('matchesContainer');
+    const emptyState = document.getElementById('emptyState');
+    
+    // Show loading
+    loadingState.style.display = 'block';
+    matchesContainer.style.display = 'none';
+    emptyState.style.display = 'none';
+    
+    try {
+        const url = `/api/football/matches?days=${days}`;
+        console.log('[FOOTBALL] Fetching:', url);
+        
+        const response = await fetch(url);
+        console.log('[FOOTBALL] Response status:', response.status);
+        
+        const data = await response.json();
+        console.log('[FOOTBALL] Response data:', data);
+        
+        if (data.success && data.matches) {
+            allMatches = data.matches;
+            updateCompetitionFilter();
+            updateStats();
+            renderMatches(allMatches);
+        } else {
+            showEmptyState();
+        }
+        
+    } catch (error) {
+        console.error('[FOOTBALL] Error loading matches:', error);
+        console.error('[FOOTBALL] Error stack:', error.stack);
+        showEmptyState();
+    } finally {
+        console.log('[FOOTBALL] loadMatches() completed');
+        loadingState.style.display = 'none';
+    }
+}
+
+function updateCompetitionFilter() {
+    competitions = new Set(allMatches.map(m => m.competition));
+    const select = document.getElementById('competitionFilter');
+    
+    // Clear and rebuild options
+    select.innerHTML = '<option value="">Alle Wettbewerbe</option>';
+    competitions.forEach(comp => {
+        const option = document.createElement('option');
+        option.value = comp;
+        option.textContent = comp;
+        select.appendChild(option);
+    });
+}
+
+function updateStats() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayMatches = allMatches.filter(m => m.date.startsWith(today));
+    
+    document.getElementById('totalMatches').textContent = allMatches.length;
+    document.getElementById('todayMatches').textContent = todayMatches.length;
+    document.getElementById('competitionsCount').textContent = competitions.size;
+}
+
+function filterMatches() {
+    const competition = document.getElementById('competitionFilter').value;
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    
+    let filtered = allMatches;
+    
+    if (competition) {
+        filtered = filtered.filter(m => m.competition === competition);
+    }
+    
+    if (search) {
+        filtered = filtered.filter(m => 
+            m.homeTeam.name.toLowerCase().includes(search) ||
+            m.awayTeam.name.toLowerCase().includes(search)
+        );
+    }
+    
+    renderMatches(filtered);
+}
+
+function renderMatches(matches) {
+    console.log('[FOOTBALL] renderMatches() called with ' + matches.length + ' matches');
+    
+    const container = document.getElementById('matchesContainer');
+    const emptyState = document.getElementById('emptyState');
+    
+    console.log('[FOOTBALL] container:', container);
+    console.log('[FOOTBALL] emptyState:', emptyState);
+    
+    if (matches.length === 0) {
+        console.log('[FOOTBALL] No matches to display');
+        container.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
+    
+    console.log('[FOOTBALL] Displaying ' + matches.length + ' matches');
+    container.style.display = 'flex';
+    emptyState.style.display = 'none';
+    container.innerHTML = '';
+    
+    matches.forEach((match, index) => {
+        console.log('[FOOTBALL] Creating card ' + (index + 1) + ': ' + match.homeTeam.name + ' vs ' + match.awayTeam.name);
+        const matchCard = createMatchCard(match);
+        container.appendChild(matchCard);
+    });
+    
+    console.log('[FOOTBALL] All cards rendered');
+}
+
+function createMatchCard(match) {
+    const col = document.createElement('div');
+    col.className = 'col-md-6 col-lg-4';
+    
+    const date = new Date(match.date);
+    const dateStr = date.toLocaleDateString('de-DE', { 
+        day: '2-digit', 
+        month: 'short' 
+    });
+    const timeStr = date.toLocaleTimeString('de-DE', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    col.innerHTML = `
+        <div class="match-card">
+            <div class="match-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="competition-badge">${match.competition}</span>
+                    <small>${dateStr} • ${timeStr}</small>
+                </div>
+            </div>
+            
+            <div class="team-section">
+                <!-- Home Team -->
+                <div class="d-flex align-items-center mb-3">
+                    ${match.homeTeam.crest ? `<img src="${match.homeTeam.crest}" class="team-crest me-3" alt="${match.homeTeam.name}">` : '<div class="team-crest me-3"></div>'}
+                    <div class="flex-grow-1">
+                        <div class="team-name">${match.homeTeam.name}</div>
+                    </div>
+                </div>
+                
+                <div class="text-center my-2">
+                    <span class="vs-divider">VS</span>
+                </div>
+                
+                <!-- Away Team -->
+                <div class="d-flex align-items-center">
+                    ${match.awayTeam.crest ? `<img src="${match.awayTeam.crest}" class="team-crest me-3" alt="${match.awayTeam.name}">` : '<div class="team-crest me-3"></div>'}
+                    <div class="flex-grow-1">
+                        <div class="team-name">${match.awayTeam.name}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-3 border-top">
+                <button class="btn btn-primary btn-sm w-100" onclick="showPrediction(${match.id})">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Prognose anzeigen
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return col;
+}
+
+async function showPrediction(matchId) {
+    // Check authentication
+    if (!isAuthenticated) {
+        alert('Bitte melden Sie sich an, um Prognosen zu sehen.');
+        window.location.href = '/login';
+        return;
+    }
+    
+    if (!isPremium) {
+        window.location.href = '/pricing';
+        return;
+    }
+    
+    currentMatchId = matchId;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('predictionModal'));
+    modal.show();
+    
+    // Load prediction
+    const content = document.getElementById('predictionContent');
+    content.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Generiere Prognose...</p>
+        </div>
+    `;
+    
+    try {
+        const response = await fetch(`/api/football/predictions/${matchId}`);
+        const data = await response.json();
+        
+        if (data.success && data.prediction) {
+            displayPrediction(data.prediction);
+        } else {
+            content.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${data.error || 'Fehler beim Laden der Prognose'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading prediction:', error);
+        content.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Fehler beim Laden der Prognose
+            </div>
+        `;
+    }
+}
+
+function displayPrediction(prediction) {
+    const content = document.getElementById('predictionContent');
+    
+    // Check if it's Over/Under 2.5 prediction
+    if (prediction.type === 'over_under_2_5') {
+        content.innerHTML = `
+            <div class="prediction-result">
+                <h5 class="mb-4 text-center">🎯 Prognose: Tore im Spiel</h5>
+                
+                <div class="row g-3 mb-4 justify-content-center">
+                    <div class="col-6">
+                        <div class="card text-center ${prediction.recommendation === 'Over 2.5' ? 'border-success' : ''}">
+                            <div class="card-body">
+                                <h2 class="text-success mb-1">${prediction.over_2_5.toFixed(1)}%</h2>
+                                <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>Über 2.5 Tore</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center ${prediction.recommendation === 'Under 2.5' ? 'border-primary' : ''}">
+                            <div class="card-body">
+                                <h2 class="text-primary mb-1">${prediction.under_2_5.toFixed(1)}%</h2>
+                                <h5 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Unter 2.5 Tore</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert ${prediction.recommendation === 'Over 2.5' ? 'alert-success' : 'alert-primary'} text-center">
+                    <h5 class="mb-2"><i class="fas fa-lightbulb me-2"></i>Prognose</h5>
+                    <h4 class="mb-0">${prediction.recommendation}</h4>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong><i class="fas fa-chart-line me-2"></i>Vertrauen:</strong> ${prediction.confidence.toFixed(1)}%
+                    <p class="mb-0 mt-2 small">${prediction.explanation}</p>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Disclaimer:</strong>
+                    Dies ist eine statistische Prognose basierend auf historischen Daten. 
+                    Die Genauigkeit beträgt ca. 52%. Nutzen Sie diese Information nur als Orientierung.
+                </div>
+            </div>
+        `;
+    } else {
+        // Old format (Home/Draw/Away) - fallback
+        content.innerHTML = `
+            <div class="prediction-result">
+                <h5 class="mb-4">Prognose Wahrscheinlichkeiten</h5>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-success mb-1">${prediction.homeWin}%</h3>
+                                <small class="text-muted">Heimsieg</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-warning mb-1">${prediction.draw}%</h3>
+                                <small class="text-muted">Unentschieden</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-danger mb-1">${prediction.awayWin}%</h3>
+                                <small class="text-muted">Auswärtssieg</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong><i class="fas fa-lightbulb me-2"></i>Empfehlung:</strong> ${prediction.recommendation}
+                    <br>
+                    <small>Vertrauen: ${prediction.confidence}%</small>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function showEmptyState() {
+    document.getElementById('matchesContainer').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'block';
+}
+</script>
+{% endblock %}

@@ -25,8 +25,17 @@ class EnhancedPredictionService:
         self.football_api = FootballAPIService()
         self.model_loaded = False
         
-        # Загрузить последнюю модель ансамбля
+        # Загрузить модели для прогноза результата матча (Home/Draw/Away)
+        self.home_win_model = None
+        self.draw_model = None
+        self.away_win_model = None
+        self.match_result_models_loaded = False
+        
+        # Загрузить последнюю модель ансамбля (для Over 2.5)
         self._load_latest_ensemble()
+        
+        # Загрузить модели результата матча
+        self._load_match_result_models()
     
     def _load_latest_ensemble(self):
         """Загрузить последнюю обученную модель ансамбля"""
@@ -44,6 +53,30 @@ class EnhancedPredictionService:
                 print("⚠️  Ансамбль не найден. Используйте train_ensemble.py")
         except Exception as e:
             print(f"❌ Ошибка загрузки ансамбля: {e}")
+    
+    def _load_match_result_models(self):
+        """Загрузить модели для прогноза результата матча"""
+        try:
+            import joblib
+            model_dir = 'ml/models'
+            
+            # Загрузить модели
+            self.home_win_model = joblib.load(os.path.join(model_dir, 'home_win_model.pkl'))
+            self.draw_model = joblib.load(os.path.join(model_dir, 'draw_model.pkl'))
+            self.away_win_model = joblib.load(os.path.join(model_dir, 'away_win_model.pkl'))
+            
+            # Загрузить список фичей, которые использовались при тренировке
+            try:
+                self.match_result_feature_columns = joblib.load(os.path.join(model_dir, 'feature_columns.pkl'))
+                print(f"✅ Загружено {len(self.match_result_feature_columns)} feature columns")
+            except:
+                self.match_result_feature_columns = None
+                print(f"⚠️  feature_columns.pkl не найден, используем feature_names_in_ из модели")
+            
+            self.match_result_models_loaded = True
+            print(f"✅ Модели результата матча загружены (Home/Draw/Away)")
+        except Exception as e:
+            print(f"⚠️  Ошибка загрузки моделей результата: {e}")
     
     def get_upcoming_matches(self, days_ahead=7, leagues=None):
         """
@@ -299,12 +332,14 @@ class EnhancedPredictionService:
         Returns:
             dict: Прогноз с объяснениями
         """
-        if not self.model_loaded:
+        if not self.match_result_models_loaded:
             return {
-                'error': 'Модель не загружена',
-                'ensemble_proba': 0.5,
-                'prediction': 'Unknown',
-                'confidence': 'Low'
+                'error': 'Модели не загружены',
+                'home_win_proba': 0.33,
+                'draw_proba': 0.33,
+                'away_win_proba': 0.34,
+                'prediction': 'Error',
+                'confidence_score': 0.0
             }
         
         try:
@@ -315,23 +350,95 @@ class EnhancedPredictionService:
                 match_info.get('date')
             )
             
-            # Получить прогноз от ансамбля
-            prediction = self.ensemble.predict(features)
+            # Получить прогнозы от моделей результата матча
+            features_df = pd.DataFrame([features])
             
-            # Добавить объяснения
-            prediction['match_info'] = match_info
-            prediction['key_factors'] = self._extract_key_factors(features)
-            prediction['explanation'] = self._generate_explanation(features, prediction)
+            # Получить правильный список фичей
+            if self.match_result_feature_columns is not None:
+                required_features = self.match_result_feature_columns
+            elif hasattr(self.home_win_model, 'feature_names_in_'):
+                required_features = self.home_win_model.feature_names_in_
+            else:
+                raise ValueError("Невозможно определить требуемые фичи для модели")
             
-            return prediction
+            # Создать DataFrame с правильными колонками
+            # Заполнить недостающие нулями
+            for col in required_features:
+                if col not in features_df.columns:
+                    features_df[col] = 0
+            
+            # Выбрать только нужные колонки в правильном порядке
+            features_df = features_df[required_features]
+            
+            # Прогнозы вероятностей
+            home_win_proba = self.home_win_model.predict_proba(features_df)[0][1]
+            draw_proba = self.draw_model.predict_proba(features_df)[0][1]
+            away_win_proba = self.away_win_model.predict_proba(features_df)[0][1]
+            
+            # Нормализация вероятностей (чтобы сумма = 1)
+            total = home_win_proba + draw_proba + away_win_proba
+            home_win_proba = home_win_proba / total
+            draw_proba = draw_proba / total
+            away_win_proba = away_win_proba / total
+            
+            # Определить рекомендацию
+            max_proba = max(home_win_proba, draw_proba, away_win_proba)
+            if max_proba == home_win_proba:
+                prediction_text = 'Home Win'
+            elif max_proba == draw_proba:
+                prediction_text = 'Draw'
+            else:
+                prediction_text = 'Away Win'
+            
+            # Уверенность модели
+            confidence_score = max_proba
+            
+            # Получить прогноз Over 2.5 (если нужно)
+            over_25_prediction = None
+            if self.model_loaded:
+                try:
+                    over_25_prediction = self.ensemble.predict(features)
+                except:
+                    pass
+            
+            # Ожидаемые голы (простая оценка)
+            expected_home_goals = features.get('home_goals_scored_last_5', 1.5)
+            expected_away_goals = features.get('away_goals_scored_last_5', 1.2)
+            
+            # Формировать ответ
+            result = {
+                'home_win_proba': float(home_win_proba),
+                'draw_proba': float(draw_proba),
+                'away_win_proba': float(away_win_proba),
+                'prediction': prediction_text,
+                'confidence_score': float(confidence_score),
+                'expected_home_goals': float(expected_home_goals),
+                'expected_away_goals': float(expected_away_goals),
+                'match_info': match_info,
+                'key_factors': self._extract_key_factors(features),
+                'explanation': f"{match_info.get('home_team', 'Home')} имеет {home_win_proba*100:.1f}% шанс победить. "
+                              f"Вероятность ничьей: {draw_proba*100:.1f}%. "
+                              f"{match_info.get('away_team', 'Away')} имеет {away_win_proba*100:.1f}% шанс победить."
+            }
+            
+            # Добавить Over 2.5 если доступно
+            if over_25_prediction:
+                result['over_2_5_proba'] = over_25_prediction.get('ensemble_proba', 0.5)
+                result['over_2_5_prediction'] = over_25_prediction.get('prediction', 'Unknown')
+            
+            return result
             
         except Exception as e:
             print(f"Ошибка прогноза: {e}")
+            import traceback
+            traceback.print_exc()
             return {
                 'error': str(e),
-                'ensemble_proba': 0.5,
+                'home_win_proba': 0.33,
+                'draw_proba': 0.33,
+                'away_win_proba': 0.34,
                 'prediction': 'Error',
-                'confidence': 'Low'
+                'confidence_score': 0.0
             }
     
     def _extract_key_factors(self, features):

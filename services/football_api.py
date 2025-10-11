@@ -41,6 +41,10 @@ class FootballAPIService:
         """Получить последние матчи команды"""
         return self.api.get_team_last_matches(team_id, limit)
     
+    def get_team_matches(self, team_id, limit=10):
+        """Получить матчи команды (alias для get_team_last_matches)"""
+        return self.get_team_last_matches(team_id, limit)
+    
     def get_team_statistics(self, team_id, league_id, season=None):
         """Получить статистику команды за сезон"""
         return self.api.get_team_statistics(team_id, league_id, season)

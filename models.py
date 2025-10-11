@@ -8,10 +8,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
 
 
+def get_table_args():
+    """
+    Get table args with schema only for PostgreSQL
+    SQLite doesn't support schemas
+    """
+    database_url = os.getenv('DATABASE_URL', '')
+    if 'postgresql' in database_url:
+        schema = os.getenv('DATABASE_SCHEMA', 'goalpredictor')
+        return {'schema': schema}
+    return {}
+
+
 class User(UserMixin, db.Model):
     """Модель пользователя"""
     __tablename__ = 'users'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
@@ -76,7 +88,7 @@ class User(UserMixin, db.Model):
 class Team(db.Model):
     """Модель команды"""
     __tablename__ = 'teams'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
     api_id = db.Column(db.Integer, unique=True, nullable=False, index=True)
@@ -103,14 +115,14 @@ class Team(db.Model):
 class Match(db.Model):
     """Модель матча"""
     __tablename__ = 'matches'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
     api_id = db.Column(db.Integer, unique=True, nullable=False, index=True)
     
     # Команды
-    home_team_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.teams.id'), nullable=False)
-    away_team_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.teams.id'), nullable=False)
+    home_team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
+    away_team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
     
     home_team = db.relationship('Team', foreign_keys=[home_team_id])
     away_team = db.relationship('Team', foreign_keys=[away_team_id])
@@ -146,10 +158,10 @@ class Match(db.Model):
 class Prediction(db.Model):
     """Модель прогноза"""
     __tablename__ = 'predictions'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.matches.id'), nullable=False)
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=False)
     
     # Прогноз
     prediction_type = db.Column(db.String(50), default='over_2.5')  # over_2.5, btts, etc.
@@ -175,11 +187,11 @@ class Prediction(db.Model):
 class UserPrediction(db.Model):
     """История просмотров прогнозов пользователем"""
     __tablename__ = 'user_predictions'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.users.id'), nullable=False)
-    prediction_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.predictions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    prediction_id = db.Column(db.Integer, db.ForeignKey('predictions.id'), nullable=False)
     viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     prediction = db.relationship('Prediction', backref='user_views')
@@ -188,10 +200,10 @@ class UserPrediction(db.Model):
 class Subscription(db.Model):
     """Модель подписки"""
     __tablename__ = 'subscriptions'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Stripe данные
     stripe_subscription_id = db.Column(db.String(255), unique=True, nullable=False)
@@ -225,7 +237,7 @@ class Subscription(db.Model):
 class TennisPlayer(db.Model):
     """Модель теннисиста"""
     __tablename__ = 'tennis_players'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
     atp_id = db.Column(db.Integer, unique=True, index=True)  # ID из ATP базы
@@ -251,7 +263,7 @@ class TennisPlayer(db.Model):
 class TennisMatch(db.Model):
     """Модель теннисного матча"""
     __tablename__ = 'tennis_matches'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
     api_id = db.Column(db.String(100), unique=True, index=True)  # ID из API
@@ -263,8 +275,8 @@ class TennisMatch(db.Model):
     round = db.Column(db.String(20))  # 'R32', 'R16', 'QF', 'SF', 'F'
     
     # Игроки
-    player1_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.tennis_players.id'), nullable=False)
-    player2_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.tennis_players.id'), nullable=False)
+    player1_id = db.Column(db.Integer, db.ForeignKey('tennis_players.id'), nullable=False)
+    player2_id = db.Column(db.Integer, db.ForeignKey('tennis_players.id'), nullable=False)
     
     player1 = db.relationship('TennisPlayer', foreign_keys=[player1_id])
     player2 = db.relationship('TennisPlayer', foreign_keys=[player2_id])
@@ -288,10 +300,10 @@ class TennisMatch(db.Model):
 class TennisPrediction(db.Model):
     """Модель прогноза на теннисный матч"""
     __tablename__ = 'tennis_predictions'
-    __table_args__ = {'schema': os.getenv('DATABASE_SCHEMA', 'goalpredictor')}
+    __table_args__ = get_table_args()
     
     id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.Integer, db.ForeignKey('goalpredictor.tennis_matches.id'), nullable=False)
+    match_id = db.Column(db.Integer, db.ForeignKey('tennis_matches.id'), nullable=False)
     
     # Прогноз
     player1_win_probability = db.Column(db.Float, nullable=False)  # 0.0 - 1.0

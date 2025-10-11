@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+</head>
+<body>
+    <h1>Simple JavaScript Test</h1>
+    <div id="result">Loading...</div>
+
+    <script>
+        console.log('[TEST] Script started');
+        
+        async function loadData() {
+            console.log('[TEST] loadData() called');
+            
+            try {
+                const url = '/api/football/matches?days=1';
+                console.log('[TEST] Fetching:', url);
+                
+                const response = await fetch(url);
+                console.log('[TEST] Response:', response.status);
+                
+                const data = await response.json();
+                console.log('[TEST] Data:', data);
+                
+                // Display on page
+                document.getElementById('result').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+            } catch (error) {
+                console.error('[TEST] Error:', error);
+                document.getElementById('result').innerHTML = 
+                    `<p style="color:red">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Auto-load
+        console.log('[TEST] Starting auto-load...');
+        loadData();
+    </script>
+</body>
+</html>
