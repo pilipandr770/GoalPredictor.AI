@@ -246,12 +246,13 @@ async function loadMatches() {
         const data = await response.json();
         console.log('[FOOTBALL] Response data:', data);
         
-        if (data.success && data.matches) {
+        if (data.success && Array.isArray(data.matches)) {
             allMatches = data.matches;
             updateCompetitionFilter();
             updateStats();
             renderMatches(allMatches);
         } else {
+            console.error('[FOOTBALL] Invalid response:', data);
             showEmptyState();
         }
         
