@@ -34,7 +34,7 @@ class FootballDataOrgAPI:
     
     def _make_request(self, endpoint, params=None):
         """
-        Базовый метод для выполнения запросов к API с кэшированием
+        Базовый метод для выполнения запросов к API с кэшированием и retry логикой
         """
         # Create cache key from endpoint and params
         cache_key = f"{endpoint}:{str(sorted((params or {}).items()))}"
@@ -46,21 +46,47 @@ class FootballDataOrgAPI:
         
         url = f"{self.base_url}/{endpoint}"
         
-        try:
-            print(f"🌐 API Request: {url} {params}")
-            response = requests.get(url, headers=self.headers, params=params, timeout=10)
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            # Cache successful response
-            football_cache.set(cache_key, data)
-            
-            return data
-            
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Ошибка запроса к Football-Data.org API: {e}")
-            return None
+        # Retry logic: 3 attempts with exponential backoff
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                timeout = 15 if attempt == 0 else 30  # First attempt: 15s, retries: 30s
+                print(f"🌐 API Request (attempt {attempt + 1}/{max_retries}): {url} {params}")
+                
+                response = requests.get(url, headers=self.headers, params=params, timeout=timeout)
+                response.raise_for_status()
+                
+                data = response.json()
+                
+                # Cache successful response
+                football_cache.set(cache_key, data)
+                print(f"✅ API Success: {cache_key}")
+                
+                return data
+                
+            except requests.exceptions.Timeout as e:
+                wait_time = 2 ** attempt  # 1s, 2s, 4s
+                print(f"⏱️ Timeout (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    print(f"⏳ Retry in {wait_time}s...")
+                    import time
+                    time.sleep(wait_time)
+                else:
+                    print(f"❌ All retries failed: Timeout")
+                    return None
+                    
+            except requests.exceptions.RequestException as e:
+                print(f"❌ Request error (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1 and response.status_code in [429, 500, 502, 503, 504]:
+                    # Retry only on rate limit or server errors
+                    wait_time = 2 ** attempt
+                    print(f"⏳ Retry in {wait_time}s...")
+                    import time
+                    time.sleep(wait_time)
+                else:
+                    return None
+        
+        return None
     
     def get_todays_fixtures(self, league=None, date=None):
         """

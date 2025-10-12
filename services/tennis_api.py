@@ -8,6 +8,7 @@ FREE tier: 100 requests/month
 import os
 import requests
 from datetime import datetime, timedelta
+from services.cache import SimpleCache
 from typing import Dict, List, Optional
 import logging
 
@@ -45,11 +46,12 @@ class TennisAPIService:
             'X-RapidAPI-Key': self.api_key if self.api_key else 'DEMO_KEY',
             'X-RapidAPI-Host': 'tennis-api-atp-wta-itf.p.rapidapi.com'
         }
-        self.cache = {}
-        self.cache_ttl = 86400  # 24 hours
+        
+        # Use SimpleCache with 10-minute TTL (save 100 req/month limit)
+        self.cache = SimpleCache(ttl_seconds=600)  # 10 minutes
         
     def _make_request(self, endpoint: str, params: Dict = None) -> Optional[Dict]:
-        """Make API request with error handling"""
+        """Make API request with caching and error handling"""
         try:
             # Check if we have API key
             if not self.api_key or self.api_key == 'DEMO_KEY' or self.api_key.startswith('your-'):
@@ -68,16 +70,27 @@ class TennisAPIService:
                 # Fallback
                 url = f"{self.BASE_URL}/{endpoint}"
             
-            response = requests.get(url, headers=self.headers, timeout=10)
+            # Check cache first
+            cache_key = f"{endpoint}:{str(sorted((params or {}).items()))}"
+            cached_data = self.cache.get(cache_key)
+            if cached_data is not None:
+                print(f"🎾 Cache HIT: {cache_key}")
+                return cached_data
             
-            print(f"🔍 API Request: {url}")
-            print(f"🔍 Status: {response.status_code}")
+            print(f"🎾 API Request: {url}")
+            response = requests.get(url, headers=self.headers, timeout=15)
+            print(f"🎾 Status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"🔍 Response keys: {list(data.keys()) if isinstance(data, dict) else 'not a dict'}")
+                print(f"🎾 Response keys: {list(data.keys()) if isinstance(data, dict) else 'not a dict'}")
                 if isinstance(data, dict) and 'results' in data:
-                    print(f"🔍 Found {data.get('results', 0)} results")
+                    print(f"🎾 Found {data.get('results', 0)} results")
+                
+                # Cache successful response
+                self.cache.set(cache_key, data)
+                print(f"💾 Tennis cached: {cache_key} (TTL: 600s)")
+                
                 logger.info(f"✓ API call successful: {endpoint}")
                 return data
             elif response.status_code == 401:
