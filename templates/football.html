@@ -194,11 +194,12 @@
 </style>
 
 <script>
+// @ts-nocheck - Jinja2 template syntax
 console.log('[FOOTBALL] Script loaded');
 
 // User authentication state (from server)
-const isAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
-const isPremium = {{ 'true' if current_user.is_authenticated and current_user.is_premium else 'false' }};
+const isAuthenticated = {% if current_user.is_authenticated %}true{% else %}false{% endif %};
+const isPremium = {% if current_user.is_authenticated and current_user.is_premium %}true{% else %}false{% endif %};
 
 let currentMatchId = null;
 let allMatches = [];

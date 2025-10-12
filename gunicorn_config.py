@@ -6,14 +6,18 @@ import multiprocessing
 bind = f"0.0.0.0:{os.getenv('PORT', '10000')}"
 backlog = 2048
 
-# Worker processes
-workers = int(os.getenv('WEB_CONCURRENCY', multiprocessing.cpu_count() * 2 + 1))
+# Worker processes - Optimized for Render $7/month plan (512MB RAM)
+# Use 4 workers for better performance while staying within memory limits
+workers = int(os.getenv('WEB_CONCURRENCY', 4))
 worker_class = 'sync'
-worker_connections = 1000
-max_requests = 1000
+worker_connections = 500  # Balanced for 4 workers
+max_requests = 500  # Restart workers after 500 requests to prevent memory leaks
 max_requests_jitter = 50
 timeout = 120
 keepalive = 5
+
+# Memory optimization
+worker_tmp_dir = '/dev/shm'  # Use RAM disk for temporary files
 
 # Logging
 accesslog = '-'
