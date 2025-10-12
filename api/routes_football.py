@@ -16,7 +16,16 @@ football_bp = Blueprint('football', __name__, url_prefix='/api/football')
 @football_bp.route('/matches', methods=['GET'])
 def get_matches():
     """
-    Get upcoming football matches
+    Get upcoming football matches from Top 5 European leagues only
+    
+    Model trained on:
+    - Premier League (England) - PL
+    - La Liga (Spain) - PD
+    - Bundesliga (Germany) - BL1
+    - Serie A (Italy) - SA
+    - Ligue 1 (France) - FL1
+    
+    NOTE: Excludes Brazilian Serie A and other non-European leagues
     
     Query params:
         days: int - Number of days to look ahead (default: 7)
@@ -58,27 +67,39 @@ def get_matches():
         date_from = datetime.now().strftime('%Y-%m-%d')
         date_to = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
         
-        # Request all matches
-        endpoint = 'matches'
-        params = {
-            'dateFrom': date_from,
-            'dateTo': date_to
+        # Top 5 European leagues (model trained on these)
+        TOP_5_LEAGUES = {
+            'PL': 'Premier League',      # England
+            'PD': 'Primera Division',    # Spain (La Liga)
+            'BL1': 'Bundesliga',         # Germany
+            'SA': 'Serie A',             # Italy (NOT Brazil!)
+            'FL1': 'Ligue 1'             # France
         }
         
-        data = football_api._make_request(endpoint, params)
+        all_matches = []
         
-        if not data or 'matches' not in data:
-            return jsonify({
-                'success': True,
-                'matches': [],
-                'count': 0
-            })
+        # Request matches for each league separately
+        for league_code, league_name in TOP_5_LEAGUES.items():
+            endpoint = f'competitions/{league_code}/matches'
+            params = {
+                'dateFrom': date_from,
+                'dateTo': date_to
+            }
+            
+            data = football_api._make_request(endpoint, params)
+            
+            if data and 'matches' in data:
+                # Add league name to each match
+                for match in data['matches']:
+                    match['league_name'] = league_name
+                    match['league_code'] = league_code
+                all_matches.extend(data['matches'])
         
-        matches = data['matches']
+        matches = all_matches
         
         # Filter by league if specified
         if league:
-            matches = [m for m in matches if m.get('competition', {}).get('name') == league]
+            matches = [m for m in matches if m.get('league_name') == league or m.get('competition', {}).get('name') == league]
         
         # Format for frontend
         formatted_matches = []
@@ -86,7 +107,8 @@ def get_matches():
             formatted = {
                 'id': match['id'],
                 'date': match['utcDate'],
-                'competition': match.get('competition', {}).get('name', 'Unknown'),
+                'competition': match.get('league_name', match.get('competition', {}).get('name', 'Unknown')),
+                'league_code': match.get('league_code', ''),
                 'homeTeam': {
                     'name': match.get('homeTeam', {}).get('name', 'Unknown'),
                     'crest': match.get('homeTeam', {}).get('crest', '')
