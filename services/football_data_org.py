@@ -5,6 +5,7 @@
 import requests
 from datetime import datetime, timedelta
 from config import Config
+from services.cache import football_cache
 
 
 class FootballDataOrgAPI:
@@ -33,15 +34,29 @@ class FootballDataOrgAPI:
     
     def _make_request(self, endpoint, params=None):
         """
-        Базовый метод для выполнения запросов к API
+        Базовый метод для выполнения запросов к API с кэшированием
         """
+        # Create cache key from endpoint and params
+        cache_key = f"{endpoint}:{str(sorted((params or {}).items()))}"
+        
+        # Try to get from cache first
+        cached_data = football_cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data
+        
         url = f"{self.base_url}/{endpoint}"
         
         try:
+            print(f"🌐 API Request: {url} {params}")
             response = requests.get(url, headers=self.headers, params=params, timeout=10)
             response.raise_for_status()
             
-            return response.json()
+            data = response.json()
+            
+            # Cache successful response
+            football_cache.set(cache_key, data)
+            
+            return data
             
         except requests.exceptions.RequestException as e:
             print(f"❌ Ошибка запроса к Football-Data.org API: {e}")
